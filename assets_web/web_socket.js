@@ -11,6 +11,6 @@ socket.on('arduino', data => {
 
 // function to send the g-code, used by the different buttons
 function sendGcode(gcode) {
-    console.log(gcode);
+    // console.log(gcode);
     socket.emit('gcode', gcode);
 }

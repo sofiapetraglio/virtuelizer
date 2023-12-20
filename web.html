@@ -2,21 +2,25 @@
 <html>
 <head>
 	<title>Web</title>
-	<script src="/socket.io/socket.io.js"></script>
-    <script src="web_socket.js"></script>
-    <script scr="web_gcode_sender.js"></script>
-    
-    <script src="web.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="style_web.css">
+    <script src="socket.io/socket.io.js"></script>
+    <script src="web_socket.js"></script>
+    <script src="web_gcode_sender.js"></script>
 	<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-    <h2 id="intro">How does circular urban manufacturing positively impact our society, economy and environment?</p>
-
 </head>
 
 <body>
     <main>
-        <button onclick="readParameters()" id="start">START</button>
-        <div class="square"></div>
+        <h1 id="intro">How does circular urban manufacturing positively impact our society, economy and environment?</h1>
+
+        <button id="button_start">START</button>
+        <div id="layers_container">
+
+        </div>
     </main>
+
+    
+    <script src="web.js"></script>
 </body>
 </html>

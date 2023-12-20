@@ -20,14 +20,12 @@ const web = express();
 const installation = express();
 
 // http to serve the website locally
-const http_web = require("http");
-const server_web = http_web.createServer(web);
-
-const http_installation = require("http");
-const server_installation = http_installation.createServer(installation);
+const http = require('http');
+const server_web = http.createServer(web);
+//const server_installation = http.createServer(installation);
 
 // socket.io to share date between the web page and the local server
-const { Server } = require("socket.io");
+const { Server } = require('socket.io');
 const io_web = new Server(server_web);
 
 
