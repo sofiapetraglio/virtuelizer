@@ -1,3 +1,4 @@
+// data list (2D array)
 let parameters = [
     [420, 9176],
     [700, 809],
@@ -15,10 +16,11 @@ let parameters = [
 ];
 
 
-let i = 0;
-
+// loop timer gcode sender
 function readParameters() {
-  function myLoop() {
+  let i = 0;
+
+  function parametersLoop() {
     let parameterCode = "G1 X" + parameters[i][0] + " F1000";
     console.log(parameterCode);
 
@@ -27,12 +29,12 @@ function readParameters() {
       i++;
 
       if (i < parameters.length) {
-        myLoop();
+        parametersLoop();
       }
     }, parameters[i][1]);
   }
 
-  myLoop();
+  parametersLoop();
 }
 
 readParameters();

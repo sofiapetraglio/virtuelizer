@@ -17,14 +17,18 @@ const { ReadlineParser } = require("@serialport/parser-readline");	// Binding
 // express to generate the website
 const express = require('express');
 const web = express();
+const installation = express();
 
 // http to serve the website locally
-const http = require("http");
-const server = http.createServer(web);
+const http_web = require("http");
+const server_web = http_web.createServer(web);
+
+const http_installation = require("http");
+const server_installation = http_installation.createServer(installation);
 
 // socket.io to share date between the web page and the local server
 const { Server } = require("socket.io");
-const io = new Server(server);
+const io_web = new Server(server_web);
 
 
 /**
@@ -50,20 +54,20 @@ const parser = port.pipe(new ReadlineParser({ delimiter: '\r\n' }));
 
 
 /**
- * Local web generator in express
+ * Local web generator in express of the web platform
  */
 
 web.get('/', (req, res) => {
-	res.sendFile(__dirname + '/virtuelizer.html');    // default page loader
+	res.sendFile(__dirname + '/web.html');    // default page loader
 });
 
-web.use(express.static('assets'));	// necessary to access and serve local files (css, img, js etc requred by the html page)
+web.use(express.static('assets_web'));	// necessary to access and serve local files (css, img, js etc requred by the html page)
 
 /**
  * Local web server
  */
 
-server.listen(3000, () => {
+web.listen(3000, () => {
 	console.log('listening on *:3000');
 });
 
@@ -73,7 +77,7 @@ server.listen(3000, () => {
  */
 
 // communication between the web page and the web server
-io.on('connection', (socket) => {
+io_web.on('connection', (socket) => {
 	socket.on('gcode', gcode => {
 		console.log(gcode);
 		// write on the Serial port of the Arduino
@@ -90,5 +94,25 @@ parser.on('data', data => {
 	console.log('arduino: ', data);
 
 	// write the data via Socket.io from the web server to the web page
-	io.emit('arduino', data);
+	io_web.emit('arduino', data);
+});
+
+
+
+/**
+ * Installation server
+ */
+
+installation.get('/', (req, res) => {
+	res.sendFile(__dirname + '/installation.html');    // default page loader
+});
+
+installation.use(express.static('assets_installation'));	// necessary to access and serve local files (css, img, js etc requred by the html page)
+
+/**
+ * Local web server
+ */
+
+installation.listen(4000, () => {
+	console.log('listening on *:4000');
 });
