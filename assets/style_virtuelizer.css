@@ -1,0 +1,30 @@
+body {
+
+    background-color: black;
+    color: bisque;
+    font-family: Helvetica, sans-serif;
+}
+
+h1 {
+    color: white; 
+    font: Helvetica normal, sans-serif;
+}
+
+h2 {
+    color: white; 
+    font-size:100px;
+    font: Helvetica lighter, sans-serif;
+}
+
+
+.square{
+    justify-content: center;
+    align-items: center;
+    margin: 10px;
+
+    background-color:#BA4747;
+height: 40px;
+width: 850px;
+border-radius: 20px;
+
+}

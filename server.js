@@ -54,7 +54,7 @@ const parser = port.pipe(new ReadlineParser({ delimiter: '\r\n' }));
  */
 
 web.get('/', (req, res) => {
-	res.sendFile(__dirname + '/virtualizer.html');    // default page loader
+	res.sendFile(__dirname + '/virtuelizer.html');    // default page loader
 });
 
 web.use(express.static('assets'));	// necessary to access and serve local files (css, img, js etc requred by the html page)
@@ -80,11 +80,14 @@ io.on('connection', (socket) => {
         port.write('G91\n');    // incremental advancement
 		port.write(gcode + '\n');   // gcode command
 	});
+	socket.on('client-connect', message => {
+		console.log(message);
+	});
 });
 
 // communication between the Arduino and the web server
 parser.on('data', data => {
-	console.log('val: ', data);
+	console.log('arduino: ', data);
 
 	// write the data via Socket.io from the web server to the web page
 	io.emit('arduino', data);
