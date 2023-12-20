@@ -20,12 +20,12 @@ const web = express();
 const installation = express();
 
 // http to serve the website locally
-const http = require('http');
+const http = require("http");
 const server_web = http.createServer(web);
-//const server_installation = http.createServer(installation);
+// const server_installation = http.createServer(installation);
 
 // socket.io to share date between the web page and the local server
-const { Server } = require('socket.io');
+const { Server } = require("socket.io");
 const io_web = new Server(server_web);
 
 
@@ -35,7 +35,7 @@ const io_web = new Server(server_web);
 
 // create new serial port
 const port = new SerialPort({
-	path: '/dev/cu.usbmodem144201',	// win: COM3, mac: /dev/cu.usbmodem144201
+	path: '/dev/cu.usbmodem14201',	// win: COM3, mac: /dev/cu.usbmodem144201 or /dev/cu.usbmodem14201
 	baudRate: 250000,	// mega 250000, uno, 9600
 	dataBits: 8,
 	stopBits: 1,
@@ -65,7 +65,7 @@ web.use(express.static('assets_web'));	// necessary to access and serve local fi
  * Local web server
  */
 
-web.listen(3000, () => {
+server_web.listen(3000, () => {
 	console.log('listening on *:3000');
 });
 
@@ -77,9 +77,11 @@ web.listen(3000, () => {
 // communication between the web page and the web server
 io_web.on('connection', (socket) => {
 	socket.on('gcode', gcode => {
-		console.log(gcode);
 		// write on the Serial port of the Arduino
-        port.write('G91\n');    // incremental advancement
+		console.log('G91');
+		port.write('G91\n');    // incremental advancement
+		
+		console.log(gcode);
 		port.write(gcode + '\n');   // gcode command
 	});
 	socket.on('client-connect', message => {
@@ -110,6 +112,7 @@ installation.use(express.static('assets_installation'));	// necessary to access 
 /**
  * Local web server
  */
+
 
 installation.listen(4000, () => {
 	console.log('listening on *:4000');

@@ -14,7 +14,7 @@ function startConstruction() {
             console.log(gcode);
 
             // send the gcode to the server
-            //sendGcode(gcode);
+            sendGcode(gcode);
 
             // add new layer on the html page inside the layerContainer
 
