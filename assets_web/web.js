@@ -5,72 +5,57 @@ const layersContainer = document.getElementById("layers_container");
 let currentLine = 0;
 
 function startConstruction() {
-
     function dataLoop() {
+        setTimeout(() => {
+            // Compose the gcode command for X
+            let gcodeX = "G1 X-" + (dataList[currentLine][0]*10) + " Z-10 F5000";
+            console.log(gcodeX);
 
-        setTimeout(()=> {
-            // compose the gcode command
-            let gcode = "G1 X" + dataList[currentLine][0] + " F1000";
-            console.log(gcode);
+            // Send the gcode to the server
+            sendGcode(gcodeX);
 
-            // send the gcode to the server
-            sendGcode(gcode);
-
-            // add new layer on the html page inside the layerContainer
-
-            // layer container
+            // Add new layer on the HTML page inside the layerContainer
             const layerContainer = document.createElement("div");
             layerContainer.classList.add("layer_container");
             layersContainer.prepend(layerContainer);
 
-            // layer values
-            const social = document.createElement("div");
-            social.classList.add("layer_social");
+            /*
+            // Increment the current data list line
+            currentLine++;      
+            */
 
-            const sustainable = document.createElement("div");
-            sustainable.classList.add("layer_sustainable");
+            // Check if the list is finished
+            if (currentLine > dataList.length - 1) {
+                currentLine = 0; // Reset the current line
+            } else {
+                // Continue with Y-axis movement after a timeout
+                setTimeout(() => {
+                    // Compose the gcode command for Y
+                    let gocodeZ = "G1 Z0";
+                    let gcodeY = "G1 Y10 F2000";
+                    console.log(gcodeY);
 
-            const natural = document.createElement("div");
-            natural.classList.add("layer_natural");
+                    // Send the gcode to the server
+                    sendGcode(gcodeY);
 
-            const tradition = document.createElement("div");
-            tradition.classList.add("layer_tradition");
+                    // Increment the current data list line
+                    currentLine++;
 
-            // check if the layer value has to be added to the layerContainer or not (> 0)
-            if(dataList[currentLine][0] > 0) {  //social
-                social.style.width = dataList[currentLine][0] + "%";
-                layerContainer.appendChild(social);
-
+                    // Check if the list is finished
+                    if (currentLine > dataList.length - 1) {
+                        currentLine = 0; // Reset the current line
+                    } else {
+                        // Continue the data loop
+                        dataLoop();
+                    }
+                }, 1000); // Timeout for Y-axis movement
             }
-            if(dataList[currentLine][1] > 0) {  //sustainable
-                sustainable.style.width = dataList[currentLine][1] + "%";
-                layerContainer.appendChild(sustainable);
-            }
-            if(dataList[currentLine][2] > 0) {  //natural
-                natural.style.width = dataList[currentLine][2] + "%";
-                layerContainer.appendChild(natural);
-            }
-            if(dataList[currentLine][3] > 0) {  //tradition
-                tradition.style.width = dataList[currentLine][3] + "%";
-                layerContainer.appendChild(tradition);
-            }
-
-            // increment the current data list line
-            currentLine++;
-            // check if the list is finished
-            if(currentLine > dataList.length - 1) {
-                currentLine = 0;    // reset the current line
-            }
-            else {
-                dataLoop();
-            }
-
-        }, dataList[currentLine][4]);   // delay time in ms
+        }, 1000); // Timeout for X-axis movement
     }
 
-    dataLoop(); 
-
+    dataLoop();
 }
+
 
 function stopConstruction() {
 

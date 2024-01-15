@@ -35,7 +35,7 @@ const io_web = new Server(server_web);
 
 // create new serial port
 const port = new SerialPort({
-	path: '/dev/cu.usbmodem14201',	// win: COM3, mac: /dev/cu.usbmodem144201 or /dev/cu.usbmodem14201
+	path: '/dev/cu.usbmodem144401',	// win: COM3, mac: /dev/cu.usbmodem144201 or /dev/cu.usbmodem14201
 	baudRate: 250000,	// mega 250000, uno, 9600
 	dataBits: 8,
 	stopBits: 1,
