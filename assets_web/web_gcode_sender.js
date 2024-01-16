@@ -1,6 +1,6 @@
 // data list (2D array) [d0 ... till before-last parameters in %, last is the delay in seconds]
 let dataList = [    // % 9 
-    [10, 20, 30, 15, 25, 0],
+    [10, 20, 30, 0, 40, 0],
     [0, 25, 0, 75, 0, 12],
     [50, 20, 30, 0, 26],
     /*
