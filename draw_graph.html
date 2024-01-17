@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Web</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="assets_web/style_web.css">
+    <script src="assets_web/web_gcode_sender.js"></script>
+	<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+
+    <style>
+        #canvas {
+            border: 1px solid white;
+        }
+    </style>
+</head>
+
+<body>
+
+    <main>
+        <canvas id="canvas" width="720px" height="480px"></canvas>
+    </main>
+
+    <script>
+        function draw() {
+            const canvas = document.getElementById('canvas');
+            if(canvas.getContext) {
+                const ctx = canvas.getContext('2d');
+
+                ctx.strokeStyle = 'rgb(255, 255, 255)';
+
+                for(let i=0; i<dataList[0].length - 2; i++) {
+                    ctx.beginPath();
+                    ctx.arc(360, 240, 50, 0, dataList[0][i]/100*Math.PI);
+                    ctx.arc(360, 240, 50, 0, Math.PI);
+                    ctx.closePath();
+                    ctx.stroke();
+                }
+            }
+        }
+        draw();
+    </script>
+
+</body>
+</html>
