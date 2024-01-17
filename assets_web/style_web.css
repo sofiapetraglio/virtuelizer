@@ -11,45 +11,6 @@ h1 {
     font: Helvetica lighter, sans-serif;
 }
 
-#layers_container {
-    display: block;
-}
-
-.layer_container {
-    display: flex;
-    margin-top: 10px;
-    column-gap: 5px;
-    justify-content: space-between;
-}
-
-
-.layer_container div {
-    justify-content: center;
-    align-items: center;
-    height: 8vh;
-    border-radius: 4vh;
-}
-
-.layer_social {
-    background-color:#BA4747;
-}
-
-.layer_social {
-    background-color:#9947ba;
-}
-
-.layer_sustainable {
-    background-color:#baa547;
-}
-
-.layer_natural {
-    background-color:#ba4792;
-}
-
-.layer_tradition {
-    background-color:#6247ba;
-}
-
-.layer_handcraft {
-    background-color:#5cba47;
+#canvas {
+    border: 1px solid white;
 }

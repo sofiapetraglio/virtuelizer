@@ -32,11 +32,6 @@ function lineLoop() {
             sendGcode(gcodeX);
 
 
-            // Add new layer on the HTML page inside the layerContainer
-            const layerContainer = document.createElement("div");
-            layerContainer.classList.add("layer_container");
-            layersContainer.prepend(layerContainer);
-
             // Compose the gcode command for Y
             let gcodeY = "G1 Y25 Z5 F1000";
             console.log(gcodeY);
@@ -87,17 +82,9 @@ function stopLine() {
 
 function startLine() {
     console.log('>>>> Start new line: ' + currentLine + ' <<<<< \n');
-    draw();
+    draw(currentLine);
     lineLoop();
 }
-
-
-// buttons
-const buttonStart = document.getElementById("button_start");
-
-buttonStart.addEventListener('click', function startGcode() {
-    startLine();
-});
 
 
 document.addEventListener('keypress', (event) => {
@@ -117,13 +104,16 @@ document.addEventListener('keypress', (event) => {
 });
 
 
-function draw() {
+function draw(currentLine) {
+    
     const canvas = document.getElementById('canvas');
     //const radius = canvas.width / 2 - 50;
-    const radius = 200;
+    
 
-    const width = canvas.width / 2;
+    const width = canvas.width/2;
     const height = canvas.height/2;
+
+    const radius = width/2;
 
     let colors = [
         'rgb(255, 0, 0)',
@@ -172,7 +162,6 @@ function draw() {
 
             let total_segment_angle = Math.PI  * 2 - segments_count * gapAngle;
                 
-
             for (let i = 0; i < dataList[currentLine].length-1; i++) {
 
                 if(dataList[currentLine][i] != 0) {
