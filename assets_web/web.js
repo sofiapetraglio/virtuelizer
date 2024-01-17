@@ -1,5 +1,5 @@
 const layersContainer = document.getElementById("layers_container");
-
+const canvas = document.getElementById("canvas");
 
 // scroll datas
 let currentLine = 0;
@@ -10,17 +10,11 @@ let circonferenza_duration = 0; // durata in ms di un giro di circonferenza
 
 function lineLoop() {
     
-    /*
-    // Check if all lines are finished
-    if (currentLine >= dataList.length) {
-        //currentLine = 0; // Reset to the first line
-    } else {
-    */
-
+    // If line IS finishe
     if (currentIndex >= dataList[currentLine].length - 1) {
         stopLine();
     }
-    else {
+    else { // If line IS NOT finished
 
         console.log('currentIndex: ' + currentIndex + ', current value: ' + dataList[currentLine][currentIndex]);
 
@@ -37,12 +31,12 @@ function lineLoop() {
             // Send the gcode to the server
             sendGcode(gcodeX);
 
+
             // Add new layer on the HTML page inside the layerContainer
             const layerContainer = document.createElement("div");
             layerContainer.classList.add("layer_container");
             layersContainer.prepend(layerContainer);
 
-            // Continue with Y-axis movement after a timeout
             // Compose the gcode command for Y
             let gcodeY = "G1 Y25 Z5 F1000";
             console.log(gcodeY);
@@ -72,10 +66,14 @@ function stopLine() {
     
     let gcodeZ = "G1 Z" + String(current_z) + " F1000";
     console.log('Random Z advancement: ' + gcodeZ);
+
+    // Send the gcode to the server
+    sendGcode(gcodeZ); // CHECK IF IT WORKS OR REMOVE
+
     
     // Move to the next job
     if(currentLine == dataList.length - 1) {
-        console.log('\n\n>>>> Print finisched! <<<<<\n\n');
+        console.log('\n\n>>>> Print finished! <<<<<\n\n');
         currentLine = 0;
     }
     else {
@@ -89,6 +87,7 @@ function stopLine() {
 
 function startLine() {
     console.log('>>>> Start new line: ' + currentLine + ' <<<<< \n');
+    draw();
     lineLoop();
 }
 
@@ -116,3 +115,106 @@ document.addEventListener('keypress', (event) => {
             break;
     }
 });
+
+
+function draw() {
+    const canvas = document.getElementById('canvas');
+    //const radius = canvas.width / 2 - 50;
+    const radius = 200;
+
+    const width = canvas.width / 2;
+    const height = canvas.height/2;
+
+    let colors = [
+        'rgb(255, 0, 0)',
+        'rgb(0, 255, 0)',
+        'rgb(255, 0, 255)',
+        'rgb(0, 255, 255)',
+        'rgb(255, 255, 0)'
+    ];
+
+    // animation angle increment
+    let screen_framerate = 30; // framerate del website
+    let time_line_print = 5;   // line print time in seconds
+    let angle_increment = Math.PI / (screen_framerate * time_line_print);
+
+    if (canvas.getContext) {
+        const ctx = canvas.getContext('2d');
+
+        const line_width = 40;
+
+        ctx.lineWidth = line_width; // Line thickness
+        ctx.lineCap = 'round'; // Set line cap to round for rounded ends
+        // ctx.strokeStyle = 'rgb(255, 255, 255)';
+
+        // Initial angle for animation
+        let angle = 0;
+
+        // Gap between percentages
+        const gapAngle = 0.3; // Adjust the gap as needed
+
+        function animate() {
+            // Clear the canvas on each frame
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw all arches at the same time with animation and gap
+            let initial_start_angle = Math.PI / 4; // aggiustare angolo secondo plexi
+            let startAngle = initial_start_angle; 
+
+            let segments_count = 0;
+            for (let i = 0; i < dataList[currentLine].length - 1; i++) {
+                if(dataList[currentLine][i] > 0) {
+                    segments_count = segments_count + 1;
+                } 
+            }
+
+            // console.log('segments_count: ' + segments_count);
+
+            let total_segment_angle = Math.PI  * 2 - segments_count * gapAngle;
+                
+
+            for (let i = 0; i < dataList[currentLine].length-1; i++) {
+
+                if(dataList[currentLine][i] != 0) {
+                    const endAngle = startAngle - (dataList[currentLine][i] / 100) * total_segment_angle;
+
+                    ctx.strokeStyle = colors[i];
+
+                    //console.log(startAngle + angle);
+                    ctx.beginPath();
+                    ctx.arc(width, height, radius, startAngle
+                        + angle, endAngle + angle, true) ;
+                    ctx.stroke();
+                    
+
+                    //console.log("i: "  + i + " startAngle: " + startAngle + " endAngle: " + endAngle)
+
+                    // Add gap between percentages
+                    startAngle = endAngle - gapAngle;
+                    //startAngle = endAngle + angle + gapAngle;
+                    
+                }
+            }
+            
+            if(angle < Math.PI / 2) {
+                
+                ctx.lineWidth = line_width + 5;
+                ctx.beginPath();
+                ctx.arc(width, height, radius, initial_start_angle + gapAngle + angle, Math.PI + angle);
+                ctx.strokeStyle = 'rgb(0, 0, 0)';
+                ctx.stroke();
+            }
+
+            // Update the animation angle
+            angle += angle_increment;
+
+            if(angle < Math.PI *2 ) {
+                // Request the next animation frame
+                requestAnimationFrame(animate);
+            }
+        }
+    // Start the animation loop
+    animate();
+        
+    }
+}
