@@ -106,22 +106,12 @@ document.addEventListener('keypress', (event) => {
 
 function draw(currentLine) {
     
-    const canvas = document.getElementById('canvas');
-    //const radius = canvas.width / 2 - 50;
-    
+    const canvas = document.getElementById('canvas');    
 
     const width = canvas.width/2;
     const height = canvas.height/2-1000;
-
     const radius = width + 240;
 
-    let colors = [
-        'rgb(255, 0, 0)',
-        'rgb(0, 255, 0)',
-        'rgb(255, 0, 255)',
-        'rgb(0, 255, 255)',
-        'rgb(255, 255, 0)'
-    ];
 
     // animation angle increment
     let screen_framerate = 30; // framerate del website
@@ -152,6 +142,7 @@ function draw(currentLine) {
             let startAngle = initial_start_angle; 
 
             let segments_count = 0;
+
             for (let i = 0; i < dataList[currentLine].length - 1; i++) {
                 if(dataList[currentLine][i] > 0) {
                     segments_count = segments_count + 1;
@@ -162,36 +153,70 @@ function draw(currentLine) {
 
             let total_segment_angle = Math.PI  * 2 - segments_count * gapAngle;
                 
-            for (let i = 0; i < dataList[currentLine].length-1; i++) {
+            let colors = [];
 
-                if(dataList[currentLine][i] != 0) {
-                    const endAngle = startAngle - (dataList[currentLine][i] / 100) * total_segment_angle;
+            // Conditions to colors
+            for (let i = 0; i < dataList[currentLine].length - 1; i++) {
+                if ([i] == 0) { // collaboration
+                    colors.push('rgb(186, 71, 71)');
+                }
+                if ([i] == 1) { // uniqueness
+                    colors.push('rgb(71, 166, 186)');
+                }
+                if ([i] == 2) { // natural resources
+                    colors.push('rgb(94, 186, 71)');
+                }
+                if ([i] == 3) { // sustainable processes
+                    colors.push('rgb(204, 174, 67)');
+                }
+                if ([i] == 3) { // tradition
+                    colors.push('rgb(186, 71, 147)');
+                }
+                if ([i] == 3) { // social inclusion
+                    colors.push('rgb(115, 71, 186)');
+                }
+                if ([i] == 3) { // handmade
+                    colors.push('rgb(192, 111, 53)');
+                }
+                if ([i] == 3) { // local
+                    colors.push('rgb(71, 96, 187)');
+                }
+                if ([i] == 3) { // waste reuse
+                    colors.push('rgb(120, 78, 54)');
+                }
 
-                    ctx.strokeStyle = colors[i];
 
-                    //console.log(startAngle + angle);
-                    ctx.beginPath();
-                    ctx.arc(width, height, radius, startAngle
-                        + angle, endAngle + angle, true) ;
-                    ctx.stroke();
-
-                    // Add text along the arch
-                    const text = `${dataList[0][i]}%`; // Text from the dataset
-                    const textAngle = (startAngle + endAngle) / 2 + angle; // Angle for text placement
-                    const textX = width + radius * Math.cos(textAngle);
-                    const textY = height + radius * Math.sin(textAngle);
-                    ctx.fillText(text, textX, textY);
+                for (let i = 0; i < dataList[currentLine].length-1; i++) {
                     
+                    if(dataList[currentLine][i] != 0) {
+                        const endAngle = startAngle - (dataList[currentLine][i] / 100) * total_segment_angle;
 
-                    //console.log("i: "  + i + " startAngle: " + startAngle + " endAngle: " + endAngle)
+                        ctx.strokeStyle = colors[i];
 
-                    // Add gap between percentages
-                    startAngle = endAngle - gapAngle;
-                    //startAngle = endAngle + angle + gapAngle;
-                    
+                        //console.log(startAngle + angle);
+                        ctx.beginPath();
+                        ctx.arc(width, height, radius, startAngle
+                            + angle, endAngle + angle, true) ;
+                        ctx.stroke();
+                        
+                        /*
+                        // Add text along the arch
+                        const text = `${dataList[0][i]}%`; // Text from the dataset
+                        const textAngle = (startAngle + endAngle) / 2 + angle; // Angle for text placement
+                        const textX = width + radius * Math.cos(textAngle);
+                        const textY = height + radius * Math.sin(textAngle);
+                        ctx.fillText(text, textX, textY);
+                        */
+
+                        //console.log("i: "  + i + " startAngle: " + startAngle + " endAngle: " + endAngle)
+
+                        // Add gap between percentages
+                        startAngle = endAngle - gapAngle;
+                        //startAngle = endAngle + angle + gapAngle;
+                        
+                    }
                 }
             }
-            
             if(angle < Math.PI / 2) {
                 
                 ctx.lineWidth = line_width + 5;
