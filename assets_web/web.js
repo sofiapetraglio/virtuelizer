@@ -111,9 +111,9 @@ function draw(currentLine) {
     
 
     const width = canvas.width/2;
-    const height = canvas.height/2;
+    const height = canvas.height/2-1000;
 
-    const radius = width/2;
+    const radius = width + 240;
 
     let colors = [
         'rgb(255, 0, 0)',
@@ -125,13 +125,13 @@ function draw(currentLine) {
 
     // animation angle increment
     let screen_framerate = 30; // framerate del website
-    let time_line_print = 5;   // line print time in seconds
+    let time_line_print = 20;   // line print time in seconds
     let angle_increment = Math.PI / (screen_framerate * time_line_print);
 
     if (canvas.getContext) {
         const ctx = canvas.getContext('2d');
 
-        const line_width = 40;
+        const line_width = 250;
 
         ctx.lineWidth = line_width; // Line thickness
         ctx.lineCap = 'round'; // Set line cap to round for rounded ends
@@ -148,7 +148,7 @@ function draw(currentLine) {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
             // Draw all arches at the same time with animation and gap
-            let initial_start_angle = Math.PI / 4; // aggiustare angolo secondo plexi
+            let initial_start_angle = Math.PI / 4.5; // aggiustare angolo secondo plexi, inizialmente messo /4
             let startAngle = initial_start_angle; 
 
             let segments_count = 0;
@@ -174,6 +174,13 @@ function draw(currentLine) {
                     ctx.arc(width, height, radius, startAngle
                         + angle, endAngle + angle, true) ;
                     ctx.stroke();
+
+                    // Add text along the arch
+                    const text = `${dataList[0][i]}%`; // Text from the dataset
+                    const textAngle = (startAngle + endAngle) / 2 + angle; // Angle for text placement
+                    const textX = width + radius * Math.cos(textAngle);
+                    const textY = height + radius * Math.sin(textAngle);
+                    ctx.fillText(text, textX, textY);
                     
 
                     //console.log("i: "  + i + " startAngle: " + startAngle + " endAngle: " + endAngle)
