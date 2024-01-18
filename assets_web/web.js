@@ -25,7 +25,7 @@ function lineLoop() {
             let current_z = (dataList[currentLine][currentIndex]/100 * circonferenza);
             // console.log("current_z: " + current_z);
             
-            let gcodeX = "G1 X" + String(current_z) + " Z" + String(current_z - 5.0) + " F1000";
+            let gcodeX = "G1 X" + String(current_z - 10.0)/2 + " Z" + String(current_z - 10.0) + " F1000";
             console.log(gcodeX);
 
             // Send the gcode to the server
@@ -33,7 +33,7 @@ function lineLoop() {
 
 
             // Compose the gcode command for Y
-            let gcodeY = "G1 Y25 Z5 F1000";
+            let gcodeY = "G1 Y50 Z10 F4000";
             console.log(gcodeY);
 
             // Send the gcode to the server
@@ -115,7 +115,7 @@ function draw(currentLine) {
 
     // animation angle increment
     let screen_framerate = 30; // framerate del website
-    let time_line_print = 20;   // line print time in seconds
+    let time_line_print = 26;   // line print time in seconds, set back to 76
     let angle_increment = Math.PI / (screen_framerate * time_line_print);
 
     if (canvas.getContext) {
@@ -138,7 +138,7 @@ function draw(currentLine) {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
             // Draw all arches at the same time with animation and gap
-            let initial_start_angle = Math.PI / 4.5; // aggiustare angolo secondo plexi, inizialmente messo /4
+            let initial_start_angle = Math.PI / 4.5; // angolo giusto a Math.PI / 4.5
             let startAngle = initial_start_angle; 
 
             let segments_count = 0;
@@ -193,6 +193,7 @@ function draw(currentLine) {
 
                         ctx.strokeStyle = colors[i];
 
+                        // Draw the arch
                         //console.log(startAngle + angle);
                         ctx.beginPath();
                         ctx.arc(width, height, radius, startAngle
@@ -217,6 +218,8 @@ function draw(currentLine) {
                     }
                 }
             }
+
+            // Black mask over the last value, at start
             if(angle < Math.PI / 2) {
                 
                 ctx.lineWidth = line_width + 5;
@@ -226,16 +229,39 @@ function draw(currentLine) {
                 ctx.stroke();
             }
 
+
+            // Black mask over the last value of old line during random Z motion, at the end
+            //if(angle > Math.PI*2) {
+                /*
+                ctx.lineWidth = line_width + 5;
+                ctx.beginPath();
+                ctx.arc(width, height, radius, initial_start_angle + gapAngle + angle, -(Math.PI + angle), true);
+                ctx.strokeStyle = 'rgb(0, 0, 0)';
+                ctx.stroke();
+                */
+               
+               // Test to end with a black mask during random Z
+               //ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            //}
+
             // Update the animation angle
             angle += angle_increment;
 
-            if(angle < Math.PI *2 ) {
+            //if(angle < Math.PI *2 + Math.PI /2) { // If per mettere maschera a fine
+            if(angle < Math.PI *2) {
+
                 // Request the next animation frame
                 requestAnimationFrame(animate);
             }
+
         }
     // Start the animation loop
     animate();
         
     }
+}
+
+function drawStop () {
+
 }
