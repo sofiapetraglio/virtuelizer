@@ -1,6 +1,11 @@
 # virtuelizer
 
+
 ## author
+Sofia Petraglio, Marco Lurati
+
+## license
+CC BY-NC-ND
 
 ## code development setup 
 
