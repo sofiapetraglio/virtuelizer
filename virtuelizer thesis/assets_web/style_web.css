@@ -1,0 +1,16 @@
+body {
+
+    background-color: black;
+    color: bisque;
+    font-family: Helvetica, sans-serif;
+}
+
+h1 {
+    color: white; 
+    font-size: 12.5vw;
+    font: Helvetica lighter, sans-serif;
+}
+
+#canvas {
+    border: 1px solid white;
+}

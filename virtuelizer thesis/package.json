@@ -1,0 +1,12 @@
+{
+	"name": "node-web-app",
+	"version": "0.0.1",
+	"description": "Web and arduino communicating via Node.js",
+	"main": "app.js",
+	"author": "Marco Lurati",
+	"dependencies": {
+		"serialport": "12.0.0",
+		"socket.io": "4.7.2",
+		"express": "4.18.1"
+	}
+}
