@@ -140,7 +140,6 @@ function openPorts(marlin_port, interface_port) {
 		});
 	});
 
-
 }
 
 // generate parsers
@@ -154,6 +153,8 @@ function runParsers(marlin_port, interface_port) {
 }
 
 function runWeb(marlin_port, interface_parser) {
+
+	console.log("runWb()");
 
 	/**
 	 * Local web generator in express of the web platform
@@ -201,7 +202,6 @@ function runWeb(marlin_port, interface_parser) {
 		io_web.emit('interface', data);
 	});
 
-
 	/**
 	 * Installation server
 	 */
@@ -215,7 +215,6 @@ function runWeb(marlin_port, interface_parser) {
 	/**
 	 * Local web server
 	 */
-
 
 	installation.listen(4000, () => {
 		console.log('listening on *:4000');

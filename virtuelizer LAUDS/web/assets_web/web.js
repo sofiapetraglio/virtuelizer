@@ -2,27 +2,38 @@ const layersContainer = document.getElementById("layers_container");
 const canvas = document.getElementById("canvas");
 
 // scroll datas
-let currentLine = 0;
 let currentIndex = 0;
 let circonferenza = 910.6; // in mm
 let circonferenza_duration = 0; // durata in ms di un giro di circonferenza
+
+// datas for the printing of the line
+let dataList = null;
+
+
+function updateDataList(data) {
+    console.log('Interface: ' + data);
+    dataList = data.split(',');
+    console.log('Interface: ' + data);
+
+    startLine();    // draw the lines
+}
 
 
 function lineLoop() {
     
     // If line IS finishe
-    if (currentIndex >= dataList[currentLine].length - 1) {
+    if (currentIndex >= dataList.length - 1) {
         stopLine();
     }
     else { // If line IS NOT finished
 
-        console.log('currentIndex: ' + currentIndex + ', current value: ' + dataList[currentLine][currentIndex]);
+        console.log('currentIndex: ' + currentIndex + ', current value: ' + dataList[currentIndex]);
 
         // Check if the parameter is different than 0 and has to be printed    
-        if (dataList[currentLine][currentIndex] != 0) {
+        if (dataList[currentIndex] != 0) {
 
             // Compose the gcode command for X
-            let current_z = (dataList[currentLine][currentIndex]/100 * circonferenza);
+            let current_z = (dataList[currentIndex]/100 * circonferenza);
             // console.log("current_z: " + current_z);
             
             let gcodeX = "G1 X" + String(current_z - 10.0)/2 + " Z" + String(current_z - 10.0) + " F1000";
@@ -65,24 +76,12 @@ function stopLine() {
     // Send the gcode to the server
     sendGcode(gcodeZ); // CHECK IF IT WORKS OR REMOVE
 
-    
-    // Move to the next job
-    if(currentLine == dataList.length - 1) {
-        console.log('\n\n>>>> Print finished! <<<<<\n\n');
-        currentLine = 0;
-    }
-    else {
-        currentLine++; // Move to the next line
-    }
-    currentIndex = 0; // Reset the current index for the new line
-
     console.log('\n\n');
-
 }
 
 function startLine() {
-    console.log('>>>> Start new line: ' + currentLine + ' <<<<< \n');
-    draw(currentLine);
+    console.log('>>>> Start the new line <<<<< \n');
+    draw();
     lineLoop();
 }
 
@@ -104,7 +103,7 @@ document.addEventListener('keypress', (event) => {
 });
 
 
-function draw(currentLine) {
+function draw() {
     
     const canvas = document.getElementById('canvas');    
 
@@ -143,8 +142,8 @@ function draw(currentLine) {
 
             let segments_count = 0;
 
-            for (let i = 0; i < dataList[currentLine].length - 1; i++) {
-                if(dataList[currentLine][i] > 0) {
+            for (let i = 0; i < dataList.length - 1; i++) {
+                if(dataList[i] > 0) {
                     segments_count = segments_count + 1;
                 } 
             }
@@ -156,7 +155,7 @@ function draw(currentLine) {
             let colors = [];
 
             // Conditions to colors
-            for (let i = 0; i < dataList[currentLine].length - 1; i++) {
+            for (let i = 0; i < dataList.length - 1; i++) {
                 if ([i] == 0) { // collaboration
                     colors.push('rgb(186, 71, 71)');
                 }
@@ -186,10 +185,10 @@ function draw(currentLine) {
                 }
 
 
-                for (let i = 0; i < dataList[currentLine].length-1; i++) {
+                for (let i = 0; i < dataList.length-1; i++) {
                     
-                    if(dataList[currentLine][i] != 0) {
-                        const endAngle = startAngle - (dataList[currentLine][i] / 100) * total_segment_angle;
+                    if(dataList[i] != 0) {
+                        const endAngle = startAngle - (dataList[i] / 100) * total_segment_angle;
 
                         ctx.strokeStyle = colors[i];
 
