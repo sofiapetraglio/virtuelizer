@@ -27,7 +27,7 @@ void loop() {
   if (button_state != prev_button_state && button_state == HIGH) {
     // Button is clicked once
     button_pressed = true;  // Toggle the button pressed state
-    Serial.println("Button clicked!");
+    //Serial.println("Button clicked!");
   }
 
   prev_button_state = button_state;  // Update previous button state
