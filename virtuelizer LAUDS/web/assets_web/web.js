@@ -22,7 +22,7 @@ function updateDataList(data) {
 function lineLoop() {
     
     // If line IS finishe
-    if (currentIndex >= dataList.length - 1) {
+    if (currentIndex >= dataList.length) {
         stopLine();
     }
     else { // If line IS NOT finished
@@ -108,8 +108,8 @@ function draw() {
     const canvas = document.getElementById('canvas');    
 
     const width = canvas.width/2;
-    const height = canvas.height/2-1000;
-    const radius = width + 240;
+    const height = canvas.height/2; // set back to canvas.height/2-1000
+    const radius = width - 500; // set back to width + 240
 
 
     // animation angle increment
@@ -120,7 +120,7 @@ function draw() {
     if (canvas.getContext) {
         const ctx = canvas.getContext('2d');
 
-        const line_width = 250;
+        const line_width = 250; // set back to 250
 
         ctx.lineWidth = line_width; // Line thickness
         ctx.lineCap = 'round'; // Set line cap to round for rounded ends
@@ -130,7 +130,7 @@ function draw() {
         let angle = 0;
 
         // Gap between percentages
-        const gapAngle = 0.3; // Adjust the gap as needed
+        const gapAngle = 0.05; // Adjust the gap as needed >> set back to 0.3
 
         function animate() {
             // Clear the canvas on each frame
@@ -142,7 +142,7 @@ function draw() {
 
             let segments_count = 0;
 
-            for (let i = 0; i < dataList.length - 1; i++) {
+            for (let i = 0; i < dataList.length; i++) {
                 if(dataList[i] > 0) {
                     segments_count = segments_count + 1;
                 } 
@@ -155,8 +155,8 @@ function draw() {
             let colors = [];
 
             // Conditions to colors
-            for (let i = 0; i < dataList.length - 1; i++) {
-                console.log(i);
+            for (let i = 0; i < dataList.length; i++) {
+                //console.log(i);
                 if ([i] == 0) { // local
                     colors.push('rgb(186, 71, 71)');
                 }
@@ -174,7 +174,7 @@ function draw() {
                 }
 
 
-                for (let i = 0; i < dataList.length-1; i++) {
+                for (let i = 0; i < dataList.length; i++) {
                     
                     if(dataList[i] != 0) {
                         const endAngle = startAngle - (dataList[i] / 100) * total_segment_angle;
@@ -208,7 +208,7 @@ function draw() {
             }
 
             // Black mask over the last value, at start
-            if(angle < Math.PI / 2) {
+            /*if(angle < Math.PI / 2) {
                 
                 ctx.lineWidth = line_width + 5;
                 ctx.beginPath();
@@ -216,7 +216,7 @@ function draw() {
                 ctx.strokeStyle = 'rgb(0, 0, 0)';
                 ctx.stroke();
             }
-
+            */
 
             // Black mask over the last value of old line during random Z motion, at the end
             //if(angle > Math.PI*2) {
