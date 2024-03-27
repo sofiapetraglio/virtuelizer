@@ -104,151 +104,122 @@ document.addEventListener('keypress', (event) => {
 
 
 function draw() {
-    
-    const canvas = document.getElementById('canvas');    
-
-    const width = canvas.width/2;
-    const height = canvas.height/2; // set back to canvas.height/2-1000
-    const radius = width - 500; // set back to width + 240
-
+    const canvas = document.getElementById('canvas');
+    const width = canvas.width / 2;
+    const height = canvas.height / 2;
+    const radius = width - 500;
 
     // animation angle increment
-    let screen_framerate = 30; // framerate del website
-    let time_line_print = 26;   // line print time in seconds, set back to 76
+    let screen_framerate = 30;
+    let time_line_print = 26;
     let angle_increment = Math.PI / (screen_framerate * time_line_print);
 
     if (canvas.getContext) {
         const ctx = canvas.getContext('2d');
+        const line_width = 250;
 
-        const line_width = 250; // set back to 250
-
-        ctx.lineWidth = line_width; // Line thickness
-        ctx.lineCap = 'round'; // Set line cap to round for rounded ends
-        // ctx.strokeStyle = 'rgb(255, 255, 255)';
+        ctx.lineWidth = line_width;
+        ctx.lineCap = 'round';
 
         // Initial angle for animation
         let angle = 0;
 
         // Gap between percentages
-        const gapAngle = 0.05; // Adjust the gap as needed >> set back to 0.3
+        const gapAngle = 0.05;
+
+        // Spacing between text along the arch
+        const textSpacing = 60; // Adjust this value to change the spacing between text
 
         function animate() {
-            // Clear the canvas on each frame
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
             // Draw all arches at the same time with animation and gap
-            let initial_start_angle = Math.PI / 4.5; // angolo giusto a Math.PI / 4.5
-            let startAngle = initial_start_angle; 
+            let initial_start_angle = Math.PI / 4.5;
+            let startAngle = initial_start_angle;
 
-            let segments_count = 0;
+            let total_segment_angle = Math.PI * 2 - dataList.length * gapAngle;
 
             for (let i = 0; i < dataList.length; i++) {
-                if(dataList[i] > 0) {
-                    segments_count = segments_count + 1;
-                } 
-            }
+                if (dataList[i] != 0) {
+                    const endAngle = startAngle - (dataList[i] / 100) * total_segment_angle;
 
-            // console.log('segments_count: ' + segments_count);
-
-            let total_segment_angle = Math.PI  * 2 - segments_count * gapAngle;
-                
-            let colors = [];
-
-            // Conditions to colors
-            for (let i = 0; i < dataList.length; i++) {
-                //console.log(i);
-                if ([i] == 0) { // local
-                    colors.push('rgb(186, 71, 71)');
-                }
-                if ([i] == 1) { // accessible
-                    colors.push('rgb(71, 166, 186)');
-                }
-                if ([i] == 2) { // urban
-                    colors.push('rgb(94, 186, 71)');
-                }
-                if ([i] == 3) { // digital
-                    colors.push('rgb(204, 174, 67)');
-                }
-                if ([i] == 4) { // sustainable
-                    colors.push('rgb(186, 71, 147)');
-                }
-
-
-                for (let i = 0; i < dataList.length; i++) {
-                    
-                    if(dataList[i] != 0) {
-                        const endAngle = startAngle - (dataList[i] / 100) * total_segment_angle;
-
-                        ctx.strokeStyle = colors[i];
-
-                        // Draw the arch
-                        //console.log(startAngle + angle);
-                        ctx.beginPath();
-                        ctx.arc(width, height, radius, startAngle
-                            + angle, endAngle + angle, true) ;
-                        ctx.stroke();
-                        
-                        /*
-                        // Add text along the arch
-                        const text = `${dataList[0][i]}%`; // Text from the dataset
-                        const textAngle = (startAngle + endAngle) / 2 + angle; // Angle for text placement
-                        const textX = width + radius * Math.cos(textAngle);
-                        const textY = height + radius * Math.sin(textAngle);
-                        ctx.fillText(text, textX, textY);
-                        */
-
-                        //console.log("i: "  + i + " startAngle: " + startAngle + " endAngle: " + endAngle)
-
-                        // Add gap between percentages
-                        startAngle = endAngle - gapAngle;
-                        //startAngle = endAngle + angle + gapAngle;
-                        
+                    // Color conditions
+                    let color;
+                    let textValue;
+                    switch (i) {
+                        case 0:
+                            color = 'rgb(186, 71, 71)'; // local
+                            textValue = 'local';
+                            break;
+                        case 1:
+                            color = 'rgb(71, 166, 186)'; // accessible
+                            textValue = 'accessible';
+                            break;
+                        case 2:
+                            color = 'rgb(94, 186, 71)'; // urban
+                            textValue = 'urban';
+                            break;
+                        case 3:
+                            color = 'rgb(204, 174, 67)'; // digital
+                            textValue = 'digital';
+                            break;
+                        case 4:
+                            color = 'rgb(186, 71, 147)'; // sustainable
+                            textValue = 'sustainable';
+                            break;
+                        // Add more cases for additional colors as needed
+                        default:
+                            color = 'black'; // Default color
+                            textValue = 'default';
                     }
+
+                    ctx.strokeStyle = color;
+
+                    ctx.beginPath();
+                    ctx.arc(width, height, radius, startAngle + angle, endAngle + angle, true);
+                    ctx.stroke();
+
+                    // Split the text into individual characters
+                    const characters = textValue.split('');
+
+                    
+
+                    // Calculate the angle for text placement
+                    const textAngle = startAngle + angle;
+
+                    // Calculate the position for text placement
+                    const textX = width + ((radius + 100) + textSpacing) * Math.cos(textAngle);
+                    const textY = height + ((radius + 100) + textSpacing) * Math.sin(textAngle);
+
+                    // Draw text along the arch
+                    ctx.font = '40px Archivo'; // Change '20px Arial' to your desired font size and font family
+                    ctx.save();
+                    ctx.translate(textX, textY);
+                    ctx.rotate(textAngle - (Math.PI/2)); // Rotate each text by 180 degrees
+                    ctx.textAlign = 'center'; // Set text alignment to center
+                    ctx.textBaseline = 'middle'; // Set text baseline to middle
+                    ctx.fillStyle = 'white';
+                    ctx.fillText(textValue, 0, 0);
+                    ctx.restore();
+
+                    startAngle = endAngle - gapAngle;
                 }
             }
-
-            // Black mask over the last value, at start
-            /*if(angle < Math.PI / 2) {
-                
-                ctx.lineWidth = line_width + 5;
-                ctx.beginPath();
-                ctx.arc(width, height, radius, initial_start_angle + gapAngle + angle, Math.PI + angle);
-                ctx.strokeStyle = 'rgb(0, 0, 0)';
-                ctx.stroke();
-            }
-            */
-
-            // Black mask over the last value of old line during random Z motion, at the end
-            //if(angle > Math.PI*2) {
-                /*
-                ctx.lineWidth = line_width + 5;
-                ctx.beginPath();
-                ctx.arc(width, height, radius, initial_start_angle + gapAngle + angle, -(Math.PI + angle), true);
-                ctx.strokeStyle = 'rgb(0, 0, 0)';
-                ctx.stroke();
-                */
-               
-               // Test to end with a black mask during random Z
-               //ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            //}
 
             // Update the animation angle
             angle += angle_increment;
 
-            //if(angle < Math.PI *2 + Math.PI /2) { // If per mettere maschera a fine
-            if(angle < Math.PI *2) {
-
+            if (angle < Math.PI * 2) {
                 // Request the next animation frame
                 requestAnimationFrame(animate);
             }
-
         }
-    // Start the animation loop
-    animate();
-        
+
+        // Start the animation loop
+        animate();
     }
 }
+
 
 function drawStop () {
 
