@@ -156,32 +156,21 @@ function draw() {
 
             // Conditions to colors
             for (let i = 0; i < dataList.length - 1; i++) {
-                if ([i] == 0) { // collaboration
+                console.log(i);
+                if ([i] == 0) { // local
                     colors.push('rgb(186, 71, 71)');
                 }
-                if ([i] == 1) { // uniqueness
+                if ([i] == 1) { // accessible
                     colors.push('rgb(71, 166, 186)');
                 }
-                if ([i] == 2) { // natural resources
+                if ([i] == 2) { // urban
                     colors.push('rgb(94, 186, 71)');
                 }
-                if ([i] == 3) { // sustainable processes
+                if ([i] == 3) { // digital
                     colors.push('rgb(204, 174, 67)');
                 }
-                if ([i] == 3) { // tradition
+                if ([i] == 4) { // sustainable
                     colors.push('rgb(186, 71, 147)');
-                }
-                if ([i] == 3) { // social inclusion
-                    colors.push('rgb(115, 71, 186)');
-                }
-                if ([i] == 3) { // handmade
-                    colors.push('rgb(192, 111, 53)');
-                }
-                if ([i] == 3) { // local
-                    colors.push('rgb(71, 96, 187)');
-                }
-                if ([i] == 3) { // waste reuse
-                    colors.push('rgb(120, 78, 54)');
                 }
 
 
