@@ -77,6 +77,8 @@ function stopLine() {
     sendGcode(gcodeZ); // CHECK IF IT WORKS OR REMOVE
 
     console.log('\n\n');
+
+    currentIndex = 0;
 }
 
 function startLine() {
@@ -178,11 +180,6 @@ function draw() {
                     ctx.beginPath();
                     ctx.arc(width, height, radius, startAngle + angle, endAngle + angle, true);
                     ctx.stroke();
-
-                    // Split the text into individual characters
-                    const characters = textValue.split('');
-
-                    
 
                     // Calculate the angle for text placement
                     const textAngle = startAngle + angle;
