@@ -66,7 +66,7 @@ function lineLoop() {
 function stopLine() {
     // Choose random new start if line is finished
     console.log('> Stop Line! <');
-    let current_z = (Math.floor((Math.random()) * circonferenza/4));
+    let current_z = (Math.floor((Math.random()) * circonferenza));
     // console.log("line completed");
     // console.log("random_z: " + current_z);
     
