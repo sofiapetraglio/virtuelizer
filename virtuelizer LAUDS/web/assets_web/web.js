@@ -108,8 +108,8 @@ document.addEventListener('keypress', (event) => {
 function draw() {
     const canvas = document.getElementById('canvas');
     const width = canvas.width / 2;
-    const height = canvas.height / 2;
-    const radius = width - 500;
+    const height = canvas.height/2;
+    const radius = width + 500;
 
     // animation angle increment
     let screen_framerate = 30;
