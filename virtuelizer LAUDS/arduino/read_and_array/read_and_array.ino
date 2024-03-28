@@ -52,5 +52,5 @@ void loop() {
   
   Serial.println(values);  // Print the string containing the values
 
-  delay(30000);  // Delay for 5 minutes (300,000 milliseconds)
+  delay(60000);  // Delay for 510 minutes (600000 milliseconds)
 }

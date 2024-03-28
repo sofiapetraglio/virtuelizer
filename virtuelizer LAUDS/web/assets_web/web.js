@@ -66,7 +66,7 @@ function lineLoop() {
 function stopLine() {
     // Choose random new start if line is finished
     console.log('> Stop Line! <');
-    let current_z = (Math.floor((Math.random()) * circonferenza/4));
+    let current_z = (Math.floor((Math.random()) * circonferenza / 3));
     // console.log("line completed");
     // console.log("random_z: " + current_z);
     
@@ -108,17 +108,17 @@ document.addEventListener('keypress', (event) => {
 function draw() {
     const canvas = document.getElementById('canvas');
     const width = canvas.width / 2;
-    const height = canvas.height/2;
-    const radius = width + 500;
+    const height = canvas.height / 2 - 1000; // set back to canvas.height / 2 - 1000
+    const radius = width + 285; // set back to width + 285
 
     // animation angle increment
-    let screen_framerate = 30;
-    let time_line_print = 26;
+    let screen_framerate = 30; // framerate of the website
+    let time_line_print = 70; // line print time in seconds, set back to 65
     let angle_increment = Math.PI / (screen_framerate * time_line_print);
 
     if (canvas.getContext) {
         const ctx = canvas.getContext('2d');
-        const line_width = 250;
+        const line_width = 250; // set back to 250
 
         ctx.lineWidth = line_width;
         ctx.lineCap = 'round';
@@ -127,7 +127,7 @@ function draw() {
         let angle = 0;
 
         // Gap between percentages
-        const gapAngle = 0.05;
+        const gapAngle = 0.3;
 
         // Spacing between text along the arch
         const textSpacing = 60; // Adjust this value to change the spacing between text
@@ -185,11 +185,11 @@ function draw() {
                     const textAngle = startAngle + angle;
 
                     // Calculate the position for text placement
-                    const textX = width + ((radius + 100) + textSpacing) * Math.cos(textAngle);
-                    const textY = height + ((radius + 100) + textSpacing) * Math.sin(textAngle);
+                    const textX = width + ((radius + 120) + textSpacing) * Math.cos(textAngle);
+                    const textY = height + ((radius + 120) + textSpacing) * Math.sin(textAngle);
 
                     // Draw text along the arch
-                    ctx.font = '40px Archivo'; // Change '20px Arial' to your desired font size and font family
+                    ctx.font = '60px Archivo'; // Change '20px Arial' to your desired font size and font family
                     ctx.save();
                     ctx.translate(textX, textY);
                     ctx.rotate(textAngle - (Math.PI/2)); // Rotate each text by 180 degrees
@@ -201,6 +201,32 @@ function draw() {
 
                     startAngle = endAngle - gapAngle;
                 }
+            }
+
+            // Black mask over the last value, at start
+            if(angle < Math.PI / 2) {
+                
+                ctx.lineWidth = line_width + 5;
+                ctx.beginPath();
+                ctx.arc(width, height, radius, initial_start_angle + gapAngle + angle, Math.PI + angle);
+                ctx.strokeStyle = 'rgb(0, 0, 0)';
+                ctx.stroke();
+            }
+            
+
+            // Black mask over the last value of old line during random Z motion, at the end
+            if(angle > Math.PI*2) {
+                
+                ctx.lineWidth = line_width + 5;
+                ctx.beginPath();
+                ctx.arc(width, height, radius, initial_start_angle + gapAngle + angle, -(Math.PI + angle), true);
+                ctx.strokeStyle = 'rgb(0, 0, 0)';
+                ctx.stroke();
+                
+               
+               // Test to end with a black mask during random Z
+               ctx.clearRect(0, 0, canvas.width, canvas.height);
+
             }
 
             // Update the animation angle
