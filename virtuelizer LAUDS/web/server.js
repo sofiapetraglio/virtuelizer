@@ -180,12 +180,17 @@ function runWeb(marlin_port, interface_parser) {
 	 */
 
 	// communication between the web page and the web server
+	
+	// set incremental
+	console.log('G91');
+	marlin_port.write('G91\n');    // incremental advancement
+
 	io_web.on('connection', (socket) => {
 		socket.on('gcode', gcode => {
-			// write on the Serial port of the Arduino
+			// set incremental
 			console.log('G91');
 			marlin_port.write('G91\n');    // incremental advancement
-			
+			// write on the Serial port of the Arduino
 			console.log(gcode);
 			marlin_port.write(gcode + '\n');   // gcode command
 		});
@@ -196,7 +201,7 @@ function runWeb(marlin_port, interface_parser) {
 
 	// communication between the Arduino and the web server
 	interface_parser.on('data', data => {
-		//console.log('interface: ', data);
+		console.log('interface: ', data);
 
 		// write the data via Socket.io from the web server to the web page
 		io_web.emit('interface', data);
