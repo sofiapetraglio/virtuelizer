@@ -208,7 +208,7 @@ function draw() {
             }
         }
 
-        /* // RIACCENDERE MASK
+        // RIACCENDERE MASK
         // Black mask over the last value, at start
         if(angle < Math.PI / 2) {
             
@@ -218,7 +218,7 @@ function draw() {
             ctx.strokeStyle = 'rgb(0, 0, 0)';
             ctx.stroke();
         }
-        */
+        
         
         // Update the animation angle
         angle += angle_increment;
@@ -277,7 +277,7 @@ function drawStop() {
     ctx.textBaseline = 'middle';
     ctx.fillStyle = 'white';
     //ctx.fillRect(0, 0, message.width, message.height)
-    ctx.fillText("Rate your recent purchase's sustainability", message.width / 2-600, message.height / 2+150);
+    ctx.fillText("Rate the last purchase you made.", message.width / 2-600, message.height / 2+150);
     ctx.fillText('Adjust values using the knobs to reflect', message.width / 2-600, message.height / 2 + 250);
     ctx.fillText('its production process.', message.width / 2-600, message.height / 2 + 330);
 
