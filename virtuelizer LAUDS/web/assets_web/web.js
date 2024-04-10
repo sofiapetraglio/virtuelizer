@@ -7,18 +7,18 @@ let currentIndex = 0;
 const gapAngle = 0.3;  // Gap between percentages in radians
 let screen_framerate = 60; // framerate of the screen
 let circonferenza = 2070; // in mm
+let plexi_gap = 1.396;  // 80 degrees of plexi gap into radians
 let z_gap_mm = (circonferenza / (Math.PI * 2)) * gapAngle; // gapAngle converted in mm for z-axis
 let feedrate_gcode = 2000;  // mm per minute
 let circonferenza_duration = circonferenza / (feedrate_gcode / 60); // durata in ms di un giro di circonferenza
-// compensation between math and physical movement
-let correction_coefficient = 69 / 62;
+let correction_coefficient = 69 / 62;  // compensation between math and physical movement
 circonferenza_duration = circonferenza_duration * correction_coefficient;
 console.log("circonferenza_duration: " + circonferenza_duration);
 
 // datas for the printing of the line
 let dataList = null;
 
-// drawStop();
+drawStop();
 
 
 function updateDataList(data) {
@@ -208,7 +208,6 @@ function draw() {
             }
         }
 
-        // RIACCENDERE MASK
         // Black mask over the last value, at start
         if(angle < Math.PI / 2) {
             
@@ -239,14 +238,14 @@ function draw() {
         }
 
 
-        if (angle < Math.PI * 2) {
+        if (angle < Math.PI * 2 + plexi_gap) {
             // Request the next animation frame
             requestAnimationFrame(animate);
         } else {
             // Animation is finished
             animationInProgress = false;
             console.log('animation done!');
-            //drawStop(); // Show the text when animation is finished
+            drawStop(); // Show the text when animation is finished
         }
     }
 
