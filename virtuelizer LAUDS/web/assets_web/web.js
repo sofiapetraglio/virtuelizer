@@ -17,17 +17,31 @@ console.log("circonferenza_duration: " + circonferenza_duration);
 
 // datas for the printing of the line
 let dataList = null;
+let nonZeroCount = 0;
 
 drawStop();
 
 
 function updateDataList(data) {
-    console.log('Interface: ' + data);
+
     dataList = data.split(',');
     console.log('Interface: ' + data);
 
+    // Count the number of indexes with values greater than 0
+    for (let i = 0; i < dataList.length; i++) {
+        // Convert the string value to a number using parseFloat or parseInt
+        let value = parseInt(dataList[i]);
+        // Check if the value is greater than 0
+        if (value > 0) {
+            nonZeroCount++;
+        }
+    }
+    console.log('Number of indexes greater than 0: ' + nonZeroCount);
+
     startLine();    // draw the lines
 }
+
+
 
 
 function lineLoop() {
@@ -41,13 +55,15 @@ function lineLoop() {
         console.log('currentIndex: ' + currentIndex + ', current value: ' + dataList[currentIndex]);
 
         // Check if the parameter is different than 0 and has to be printed    
-        if (dataList[currentIndex] != 0) {
+        if (dataList[currentIndex] > 0) { // if (dataList[currentIndex] != 0) {
+
+            let circonferenza_no_gap = circonferenza - nonZeroCount * z_gap_mm; // calculate circumference without the gaps, only arches
 
             // Compose the gcode command for X
-            let current_z = (dataList[currentIndex]/100 * circonferenza);
+            let current_z = (dataList[currentIndex]/100 * circonferenza_no_gap);
             // console.log("current_z: " + current_z);
             
-            let gcodeX = "G1 X" + String(((current_z - z_gap_mm)/2).toFixed(1)) + " Z" + String((current_z - z_gap_mm).toFixed(1)) + " F" + feedrate_gcode;
+            let gcodeX = "G1 X" + String(((current_z)/2).toFixed(1)) + " Z" + String((current_z).toFixed(1)) + " F" + feedrate_gcode;
             console.log(gcodeX);
 
             // Send the gcode to the server
@@ -55,7 +71,8 @@ function lineLoop() {
 
 
             // Compose the gcode command for Y
-            let gcodeY = "G1 Y20 Z" + z_gap_mm.toFixed(1) + " F" + feedrate_gcode;
+            let gcodeY = "G1 Y10 Z" + z_gap_mm.toFixed(1) + " F" + feedrate_gcode;  //let gcodeY = "G1 Y20 Z" + z_gap_mm.toFixed(1) + " F" + feedrate_gcode;
+
             console.log(gcodeY);
 
             // Send the gcode to the server
@@ -211,7 +228,7 @@ function draw() {
         // Black mask over the last value, at start
         if(angle < Math.PI / 2) {
             
-            ctx.lineWidth = line_width + 155;
+            ctx.lineWidth = line_width + 15;
             ctx.beginPath();
             ctx.arc(width, height, radius, initial_start_angle + gapAngle + angle, Math.PI + angle);
             ctx.strokeStyle = 'rgb(0, 0, 0)';
@@ -225,7 +242,7 @@ function draw() {
         // Black mask over the last value of old line during random Z motion, at the end
         if(angle > Math.PI * 2) {
             
-            ctx.lineWidth = line_width + 155;
+            ctx.lineWidth = line_width + 230;
             ctx.beginPath();
             ctx.arc(width, height, radius, (Math.PI + initial_start_angle) + angle, initial_start_angle + angle);
             //ctx.arc(width, height, radius, initial_start_angle + gapAngle + angle, -(Math.PI + angle), true);
