@@ -4,20 +4,27 @@ const message = document.getElementById("message");
 
 // scroll datas
 let currentIndex = 0;
-const gapAngle = 0.3;  // Gap between percentages in radians
+
+// screen and circumferences
 let screen_framerate = 60; // framerate of the screen
 let circonferenza = 2070; // in mm
 let plexi_gap = 1.396;  // 80 degrees of plexi gap into radians
-let z_gap_mm = (circonferenza / (Math.PI * 2)) * gapAngle; // gapAngle converted in mm for z-axis
 let feedrate_gcode = 2000;  // mm per minute
 let circonferenza_duration = circonferenza / (feedrate_gcode / 60); // durata in ms di un giro di circonferenza
 let correction_coefficient = 69 / 62;  // compensation between math and physical movement
-circonferenza_duration = circonferenza_duration * correction_coefficient;
+
+circonferenza_duration = circonferenza_duration * correction_coefficient; // corrected circumference with compensation
 console.log("circonferenza_duration: " + circonferenza_duration);
+
+// gap
+const gap_angle = 0.3;  // gap between percentages in radians
+let gap_mm = (circonferenza / (Math.PI * 2)) * gap_angle; // gap_angle converted in mm for z-axis
 
 // datas for the printing of the line
 let dataList = null;
-let nonZeroCount = 0;
+let pot_count = 0;
+
+
 
 drawStop();
 
@@ -33,10 +40,10 @@ function updateDataList(data) {
         let value = parseInt(dataList[i]);
         // Check if the value is greater than 0
         if (value > 0) {
-            nonZeroCount++;
+            pot_count++;
         }
     }
-    console.log('Number of indexes greater than 0: ' + nonZeroCount);
+    console.log('Number of indexes greater than 0: ' + pot_count);
 
     startLine();    // draw the lines
 }
@@ -45,6 +52,12 @@ function updateDataList(data) {
 
 
 function lineLoop() {
+
+
+// total gaps and circumferences IN MM - MACHINE
+let total_gaps_mm = pot_count * gap_mm;  // total gaps in mm according to how many arches get printed
+let total_circonferenza_no_gap = circonferenza - total_gaps_mm; // calculate circumference without the gaps, only arches
+
     
     // If line IS finished
     if (currentIndex >= dataList.length) {
@@ -56,8 +69,8 @@ function lineLoop() {
 
         // Check if the parameter is different than 0 and has to be printed    
         if (dataList[currentIndex] > 0) { // if (dataList[currentIndex] != 0) {
-
-            let circonferenza_no_gap = circonferenza - nonZeroCount * z_gap_mm; // calculate circumference without the gaps, only arches
+            let total_gaps_mm = pot_count * gap_mm;
+            let circonferenza_no_gap = circonferenza - total_gaps_mm; // calculate circumference without the gaps, only arches
 
             // Compose the gcode command for X
             let current_z = (dataList[currentIndex]/100 * circonferenza_no_gap);
@@ -71,7 +84,7 @@ function lineLoop() {
 
 
             // Compose the gcode command for Y
-            let gcodeY = "G1 Y10 Z" + z_gap_mm.toFixed(1) + " F" + feedrate_gcode;  //let gcodeY = "G1 Y20 Z" + z_gap_mm.toFixed(1) + " F" + feedrate_gcode;
+            let gcodeY = "G1 Y10 Z" + gap_mm.toFixed(1) + " F" + feedrate_gcode;  //let gcodeY = "G1 Y20 Z" + gap_mm.toFixed(1) + " F" + feedrate_gcode;
 
             console.log(gcodeY);
 
@@ -103,7 +116,7 @@ function stopLine() {
     console.log('Random Z advancement: ' + gcodeZ);
 
     // Send the gcode to the server
-    sendGcode(gcodeZ); // CHECK IF IT WORKS OR REMOVE
+    sendGcode(gcodeZ);
 
     console.log('\n\n');
 
@@ -132,6 +145,7 @@ function draw() {
 
     const ctx = canvas.getContext('2d');
     const line_width = 250; // set back to 250
+    const line_mask = line_width + 230;  // mask over previous or last arches
 
     ctx.lineCap = 'round';
 
@@ -148,23 +162,23 @@ function draw() {
         let initial_start_angle = Math.PI / 4.5;
         let startAngle = initial_start_angle;
 
-        let gap_count = 0;
+        gap_count = pot_count;
 
+        /*
         // consider only the values that are bigger than 0 as a gap
         for (let i=0; i < dataList.length; i++) {
             if (dataList[i] > 0) {
                 gap_count++
             }
         }
+        */
 
-        let total_segment_angle = Math.PI * 2 - gap_count * gapAngle; // this is the sum of the total circle - total of gaps according to potentiometers bigger than 0
+        let total_segment_angle = Math.PI * 2 - gap_count * gap_angle; // this is the sum of the total circle - total of gaps according to potentiometers bigger than 0
 
     
         for (let i = 0; i < dataList.length; i++) {
             if (dataList[i] > 0) {
                 const endAngle = startAngle - ((dataList[i] / 100) * total_segment_angle);
-
-                // console.log(endAngle);
 
                 // Color conditions
                 let color;
@@ -221,16 +235,16 @@ function draw() {
                 ctx.fillText(textValue, 0, 0);
                 ctx.restore();
 
-                startAngle = endAngle - gapAngle;
+                startAngle = endAngle - gap_angle;
             }
         }
 
         // Black mask over the last value, at start
         if(angle < Math.PI / 2) {
             
-            ctx.lineWidth = line_width + 15;
+            ctx.lineWidth = line_mask;
             ctx.beginPath();
-            ctx.arc(width, height, radius, initial_start_angle + gapAngle + angle, Math.PI + angle);
+            ctx.arc(width, height, radius, initial_start_angle + gap_angle + angle, Math.PI + angle);
             ctx.strokeStyle = 'rgb(0, 0, 0)';
             ctx.stroke();
         }
@@ -242,10 +256,10 @@ function draw() {
         // Black mask over the last value of old line during random Z motion, at the end
         if(angle > Math.PI * 2) {
             
-            ctx.lineWidth = line_width + 230;
+            ctx.lineWidth = line_mask;
             ctx.beginPath();
             ctx.arc(width, height, radius, (Math.PI + initial_start_angle) + angle, initial_start_angle + angle);
-            //ctx.arc(width, height, radius, initial_start_angle + gapAngle + angle, -(Math.PI + angle), true);
+            //ctx.arc(width, height, radius, initial_start_angle + gap_angle + angle, -(Math.PI + angle), true);
             ctx.strokeStyle = 'rgb(0, 0, 0)';
             ctx.stroke();
             
