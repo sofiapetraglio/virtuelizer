@@ -2,62 +2,41 @@ const layersContainer = document.getElementById("layers_container");
 const canvas = document.getElementById("canvas");
 const message = document.getElementById("message");
 
-// scroll datas
+// scroll data
 let currentIndex = 0;
-
-// screen and circumferences
-let screen_framerate = 60; // framerate of the screen
-let circonferenza = 2070; // in mm
-let plexi_gap = 1.396;  // 80 degrees of plexi gap into radians
+const gapAngle = 0.3;  // gap between arches, in radians
+let screen_framerate = 60; // framerate of the screen, ADJUST according to the screen
+let circonferenza = 2070; // circumference in mm
+let plexi_gap = 1.396;  // 80 degrees of visible screen, in radians
+let z_gap_mm = (circonferenza / (Math.PI * 2)) * gapAngle; // gapAngle converted in mm for z-axis
 let feedrate_gcode = 2000;  // mm per minute
-let circonferenza_duration = circonferenza / (feedrate_gcode / 60); // durata in ms di un giro di circonferenza
+let circonferenza_duration = circonferenza / (feedrate_gcode / 60); // duration of one complete round in ms
 let correction_coefficient = 69 / 62;  // compensation between math and physical movement
-
-circonferenza_duration = circonferenza_duration * correction_coefficient; // corrected circumference with compensation
+circonferenza_duration = circonferenza_duration * correction_coefficient;
 console.log("circonferenza_duration: " + circonferenza_duration);
-
-// gap
-const gap_angle = 0.3;  // gap between percentages in radians
-let gap_mm = (circonferenza / (Math.PI * 2)) * gap_angle; // gap_angle converted in mm for z-axis
 
 // datas for the printing of the line
 let dataList = null;
-let pot_count = 0;
 
+// font
+let font = new FontFace("Archivo", "url(Archivo-Regular.ttf) format('ttf'), url(Archivo-Regular.woff) format('woff')");
 
-
-drawStop();
+font.load().then(() => {
+    console.log("Font loaded!");
+    document.fonts.add(font);   // required to load the font in the page!
+    drawStop();
+});
 
 
 function updateDataList(data) {
-
+    console.log('Interface: ' + data);
     dataList = data.split(',');
     console.log('Interface: ' + data);
-
-    // Count the number of indexes with values greater than 0
-    for (let i = 0; i < dataList.length; i++) {
-        // Convert the string value to a number using parseFloat or parseInt
-        let value = parseInt(dataList[i]);
-        // Check if the value is greater than 0
-        if (value > 0) {
-            pot_count++;
-        }
-    }
-    console.log('Number of indexes greater than 0: ' + pot_count);
 
     startLine();    // draw the lines
 }
 
-
-
-
 function lineLoop() {
-
-
-// total gaps and circumferences IN MM - MACHINE
-let total_gaps_mm = pot_count * gap_mm;  // total gaps in mm according to how many arches get printed
-let total_circonferenza_no_gap = circonferenza - total_gaps_mm; // calculate circumference without the gaps, only arches
-
     
     // If line IS finished
     if (currentIndex >= dataList.length) {
@@ -68,15 +47,13 @@ let total_circonferenza_no_gap = circonferenza - total_gaps_mm; // calculate cir
         console.log('currentIndex: ' + currentIndex + ', current value: ' + dataList[currentIndex]);
 
         // Check if the parameter is different than 0 and has to be printed    
-        if (dataList[currentIndex] > 0) { // if (dataList[currentIndex] != 0) {
-            let total_gaps_mm = pot_count * gap_mm;
-            let circonferenza_no_gap = circonferenza - total_gaps_mm; // calculate circumference without the gaps, only arches
+        if (dataList[currentIndex] != 0) {
 
             // Compose the gcode command for X
-            let current_z = (dataList[currentIndex]/100 * circonferenza_no_gap);
+            let current_z = (dataList[currentIndex]/100 * circonferenza);
             // console.log("current_z: " + current_z);
             
-            let gcodeX = "G1 X" + String(((current_z)/2).toFixed(1)) + " Z" + String((current_z).toFixed(1)) + " F" + feedrate_gcode;
+            let gcodeX = "G1 X" + String(((current_z - z_gap_mm)/2).toFixed(1)) + " Z" + String((current_z - z_gap_mm).toFixed(1)) + " F" + feedrate_gcode;
             console.log(gcodeX);
 
             // Send the gcode to the server
@@ -84,8 +61,7 @@ let total_circonferenza_no_gap = circonferenza - total_gaps_mm; // calculate cir
 
 
             // Compose the gcode command for Y
-            let gcodeY = "G1 Y10 Z" + gap_mm.toFixed(1) + " F" + feedrate_gcode;  //let gcodeY = "G1 Y20 Z" + gap_mm.toFixed(1) + " F" + feedrate_gcode;
-
+            let gcodeY = "G1 Y20 Z" + z_gap_mm.toFixed(1) + " F" + feedrate_gcode;
             console.log(gcodeY);
 
             // Send the gcode to the server
@@ -116,7 +92,7 @@ function stopLine() {
     console.log('Random Z advancement: ' + gcodeZ);
 
     // Send the gcode to the server
-    sendGcode(gcodeZ);
+    sendGcode(gcodeZ); // CHECK IF IT WORKS OR REMOVE
 
     console.log('\n\n');
 
@@ -145,7 +121,6 @@ function draw() {
 
     const ctx = canvas.getContext('2d');
     const line_width = 250; // set back to 250
-    const line_mask = line_width + 230;  // mask over previous or last arches
 
     ctx.lineCap = 'round';
 
@@ -162,23 +137,23 @@ function draw() {
         let initial_start_angle = Math.PI / 4.5;
         let startAngle = initial_start_angle;
 
-        gap_count = pot_count;
+        let gap_count = 0;
 
-        /*
         // consider only the values that are bigger than 0 as a gap
         for (let i=0; i < dataList.length; i++) {
             if (dataList[i] > 0) {
                 gap_count++
             }
         }
-        */
 
-        let total_segment_angle = Math.PI * 2 - gap_count * gap_angle; // this is the sum of the total circle - total of gaps according to potentiometers bigger than 0
+        let total_segment_angle = Math.PI * 2 - gap_count * gapAngle; // this is the sum of the total circle - total of gaps according to potentiometers bigger than 0
 
     
         for (let i = 0; i < dataList.length; i++) {
             if (dataList[i] > 0) {
                 const endAngle = startAngle - ((dataList[i] / 100) * total_segment_angle);
+
+                // console.log(endAngle);
 
                 // Color conditions
                 let color;
@@ -225,26 +200,26 @@ function draw() {
                 const textY = height + ((radius + 120) + textSpacing) * Math.sin(textAngle);
 
                 // Draw text along the arch
-                ctx.font = '60px Archivo'; // Change '20px Arial' to your desired font size and font family
                 ctx.save();
                 ctx.translate(textX, textY);
                 ctx.rotate(textAngle - (Math.PI/2)); // Rotate each text by 180 degrees
                 ctx.textAlign = 'center'; // Set text alignment to center
                 ctx.textBaseline = 'middle'; // Set text baseline to middle
                 ctx.fillStyle = 'white';
+                ctx.font = '60px "Archivo"';
                 ctx.fillText(textValue, 0, 0);
                 ctx.restore();
 
-                startAngle = endAngle - gap_angle;
+                startAngle = endAngle - gapAngle;
             }
         }
 
         // Black mask over the last value, at start
         if(angle < Math.PI / 2) {
             
-            ctx.lineWidth = line_mask;
+            ctx.lineWidth = line_width + 155;
             ctx.beginPath();
-            ctx.arc(width, height, radius, initial_start_angle + gap_angle + angle, Math.PI + angle);
+            ctx.arc(width, height, radius, initial_start_angle + gapAngle + angle, Math.PI + angle);
             ctx.strokeStyle = 'rgb(0, 0, 0)';
             ctx.stroke();
         }
@@ -256,10 +231,10 @@ function draw() {
         // Black mask over the last value of old line during random Z motion, at the end
         if(angle > Math.PI * 2) {
             
-            ctx.lineWidth = line_mask;
+            ctx.lineWidth = line_width + 155;
             ctx.beginPath();
             ctx.arc(width, height, radius, (Math.PI + initial_start_angle) + angle, initial_start_angle + angle);
-            //ctx.arc(width, height, radius, initial_start_angle + gap_angle + angle, -(Math.PI + angle), true);
+            //ctx.arc(width, height, radius, initial_start_angle + gapAngle + angle, -(Math.PI + angle), true);
             ctx.strokeStyle = 'rgb(0, 0, 0)';
             ctx.stroke();
             
@@ -302,11 +277,11 @@ function drawStop() {
     ctxMessage.clearRect(0, 0, message.width, message.height);
 
     // Draw text along the arch
-    ctx.font = '60px Archivo';
     ctx.textAlign = 'left';
     ctx.textBaseline = 'middle';
     ctx.fillStyle = 'white';
     //ctx.fillRect(0, 0, message.width, message.height)
+    ctx.font = '60px "Archivo"';
     ctx.fillText("Rate the last purchase you made.", message.width / 2-600, message.height / 2+150);
     ctx.fillText('Adjust values using the knobs to reflect', message.width / 2-600, message.height / 2 + 250);
     ctx.fillText('its production process.', message.width / 2-600, message.height / 2 + 330);

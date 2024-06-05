@@ -81,7 +81,7 @@ void loop() {
 
     button_pressed = false;  // Reset the flag to prevent further readings
     // Blink the LED during the delay period
-    for (int i = 0; i < 45; i++) {  //up to 60 times makes it 'freezed' during 60'000 ms
+    for (int i = 0; i < 40; i++) {  //up to 60 times makes it 'freezed' during 60'000 ms
       digitalWrite(led, HIGH);   // Turn LED on
       delay(1000);                   // Wait for 500 milliseconds
       digitalWrite(led, LOW);    // Turn LED off

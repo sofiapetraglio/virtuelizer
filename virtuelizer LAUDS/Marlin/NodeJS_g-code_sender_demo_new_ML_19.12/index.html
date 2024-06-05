@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Marlin motors controller</title>
+	<script src="/socket.io/socket.io.js"></script>
+	<link rel="stylesheet" href="style.css">
+	<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+</head>
+<body>
+	
+
+	<main>
+		<h1>Marlin motors controller</h1>
+
+		<input type="checkbox" name="gcodeIncremental" id="gcodeIncremental">
+		<label for="gcodeIncremental">incremental g-code</label>
+		</br>
+		</br>
+
+		<label for="moveX">move motors</label>
+		</br>
+		<button id="moveX"> X </button>
+		<button id="moveY"> Y </button>
+		<button id="moveZ"> Z </button>
+		</br>
+		</br>
+
+		<label for="gcodeTextInput">input Marlin command (ex: M503) or G-code sender (ex: G1 X100 F1000)</label>
+		</br>
+		<input type="text" id="gcodeTextInput" name="gcodeTextInput">
+		<button id="sendGcodeTextInput">SEND</button>
+
+		<hr>
+
+		<h2>Marlin prints:</h2>
+		<div id="marlin-print"></div>
+	</main>
+
+	<script type="text/javascript">
+		
+		// open the socket between the web page and the web server
+		const socket = io('http://localhost:4000');
+
+		// send greetings from web page to web server
+		socket.emit('greeting-from-client', "Html page active!");
+
+		// receive the data from the web server to the web page (based on the specific message 'key', aka: 'data-pot')
+		socket.on('marlin-print', data => {
+			let marlin_print = document.getElementById('marlin-print');
+			let p_element = document.createElement("p");
+			let text_node = document.createTextNode(data);
+			p_element.appendChild(text_node);
+			marlin_print.prepend(p_element);
+			console.log(data);
+		});
+
+		// g-code management
+		let increment = 20;
+
+		// get the HTML buttons
+		const buttonX = document.getElementById("moveX");
+		const buttonY = document.getElementById("moveY");
+		const buttonZ = document.getElementById("moveZ");
+		const gcodeTextInput = document.getElementById("gcodeTextInput");
+		const buttonSend = document.getElementById("sendGcodeTextInput");
+		const incrementalCheckbox = document.getElementById("gcodeIncremental");
+
+		// add an event listener for X-axis when the button is pressed
+		buttonX.addEventListener('click', function moveX() {
+			console.log("move X-axis");
+			let gcode = "G1 X" + increment + " F1000";
+
+			// send via socket.io the message with the key 'gcode' from the web page to the web server
+			sendGcode(gcode);
+		});
+		
+		// add an event listener for Y-axis when the button is pressed
+		buttonY.addEventListener('click', function moveY() {
+			console.log("move Y-axis");
+			let gcode = "G1 Y" + increment + " F1000";
+
+			// send via socket.io the message with the key 'gcode' from the web page to the web server
+			sendGcode(gcode);
+		});
+
+		// add an event listener for Z-axis when the button is pressed
+		buttonZ.addEventListener('click', function moveZ() {
+			console.log("move Z-axis");
+			let gcode = "G1 Z" + increment + " F1000";
+
+			// send via socket.io the message with the key 'gcode' from the web page to the web server
+			sendGcode(gcode);
+		});
+
+		// add event listener to the button send g-code
+		buttonSend.addEventListener('click', function send() {
+			let gcode = document.getElementById("gcodeTextInput").value;
+			console.log("Button SEND pressed");
+
+			// send via socket.io the message with the key 'gcode' from the web page to the web server
+			sendGcode(gcode);
+		});
+
+		// function to send the g-code, used by the different buttons
+		function sendGcode(gcode) {
+
+			// send 'G91' is the checkbox "incremental" is selected
+			if(incrementalCheckbox.checked) {
+				console.log("G91");
+				socket.emit('gcode', "G91");
+			}
+
+			console.log(gcode);
+			socket.emit('gcode', gcode);
+		}
+
+	</script>
+</body>
+</html>
