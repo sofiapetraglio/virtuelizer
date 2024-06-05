@@ -1,16 +1,8 @@
 /**
- * app.js
- * 
- * run in the terminal 'node app.js' to start the connection
- * with the arduino and run the local web page
- *
- */
-
-/**
- * SETUP and packages load
+ * SETUP AND PACKAGES LOAD
  */ 
 
-// Serialport to read the Arduino USB port
+// serialport to read the Arduino USB port
 const { SerialPort } = require("serialport");	// class
 const { ReadlineParser } = require("@serialport/parser-readline");	// Binding
 
@@ -28,7 +20,7 @@ const io = new Server(server);
 
 
 /**
- * Serial port for the Arduino
+ * SERIAL PORT FOR ARDUINO
  */
 
 // create new serial port
@@ -45,12 +37,12 @@ port.on('open', () => {
 	console.log('serial port open');
 });
 
-// variable to contain the messages coming from the Arduino (consider the message up to the end line)
+// variable to contain the messages coming from the arduino (consider the message up to the end line)
 const parser = port.pipe(new ReadlineParser({ delimiter: '\n' }));
 
 
 /**
- * Local web generator in express
+ * LOCAL WEB GENERATOR IN EXPRESS
  */
 
 app.get('/', (req, res) => {
@@ -61,7 +53,7 @@ app.get('/', (req, res) => {
 app.use(express.static('public'));	// necessary to access and serve local files (css, img, js etc requred by the html page)
 
 /**
- * Local web server
+ * LOCAL WEB SERVER
  */
 
 server.listen(4000, () => {
@@ -70,7 +62,7 @@ server.listen(4000, () => {
 
 
 /**
- * Socket.io data communication between the web page and the local server
+ * SOCKET.IO DATA COMMUNICATION BETWEEN WEB PAGE AND LOCAL SERVER
  */
 
 // communication between the web page and the web server
@@ -86,10 +78,10 @@ io.on('connection', (socket) => {
 	});
 });
 
-// communication between the Arduino and the web server
+// communication between the arduino and the web server
 parser.on('data', data => {
 	console.log(data);
 
-	// write the data via Socket.io from the web server to the web page
+	// write the data via socket.io from the web server to the web page
 	io.emit('marlin-print', data);
 });

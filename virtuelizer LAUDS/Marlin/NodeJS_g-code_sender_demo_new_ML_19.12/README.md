@@ -1,12 +1,25 @@
-open the terminal, navigate to this folder, and run the code:
+# Marlin motor controller
 
+
+## author
+Marco Lurati, Sofia Petraglio
+
+## license
+CC BY-NC-ND
+
+## code development setup 
+
+file list:
+- app.js : node server to connect Arduino to the html page
+- package.json and package-lock.js : required node libraries
+- gitignore : prevents unuseful files to be uploaded to github repository
+
+folder list:
+- node_modules : libraries
+
+### package installation
 $ npm install
 
-to install all the required node modules listed in the packages.json
-
-Connect the Arduino via USB.
-
-Start the node server with this command
-
+### run the server
 $ node app.js
 
