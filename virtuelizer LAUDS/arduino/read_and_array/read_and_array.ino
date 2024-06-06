@@ -5,7 +5,7 @@ int D = A3;  // Assign to pin A3
 int S = A4;  // Assign to pin A4
 
 #define button 8  // connect button to D8
-#define led 3   // Assign to pin 13 for the LED
+#define led 3   // assign to pin 13 for the LED
 
 
 int button_state = 0;         // variable for reading the pushbutton status
@@ -80,6 +80,7 @@ void loop() {
     Serial.println(values);  // Print the string containing the values
 
     button_pressed = false;  // Reset the flag to prevent further readings
+    
     // Blink the LED during the delay period
     for (int i = 0; i < 40; i++) {  //up to 60 times makes it 'freezed' during 60'000 ms
       digitalWrite(led, HIGH);   // Turn LED on
