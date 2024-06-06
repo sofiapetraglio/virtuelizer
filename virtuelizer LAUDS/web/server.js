@@ -1,16 +1,8 @@
 /**
- * server.js
- * 
- * run in the terminal 'node server.js' to start the connection
- * with the arduino and run the local web page
- *
- */
-
-/**
- * SETUP and packages load
+ * SETUP AND PACKAGES LOAD
  */ 
 
-// Serialport to read the Arduino USB port
+// serialport to read the arduino USB port
 const { SerialPort } = require("serialport");	// class
 const { ReadlineParser } = require("@serialport/parser-readline");	// Binding
 
@@ -99,7 +91,7 @@ function createSerialPort(marlin_port_id, interface_port_id) {
 
 				marlin_port = new SerialPort({	
 					path: ports[marlin_port_id].path,
-					baudRate: 250000,	// mega 250000, uno, 9600
+					baudRate: 250000,	// mega 250000, uno 9600
 					dataBits: 8,
 					stopBits: 1,
 					parity: 'none'
@@ -107,7 +99,7 @@ function createSerialPort(marlin_port_id, interface_port_id) {
 
 				interface_port = new SerialPort({		// interface_port, baudrate 9600
 					path: ports[interface_port_id].path,
-					baudRate: 9600,	// mega 250000, uno, 9600
+					baudRate: 9600,	// mega 250000, uno 9600
 					dataBits: 8,
 					stopBits: 1,
 					parity: 'none'
@@ -157,7 +149,7 @@ function runWeb(marlin_port, interface_parser) {
 	console.log("runWb()");
 
 	/**
-	 * Local web generator in express of the web platform
+	 * LOCAL WEB GENERATOR IN EXPRESS OF THE WEB PLATFORM
 	 */
 
 	web.get('/', (req, res) => {
@@ -167,7 +159,7 @@ function runWeb(marlin_port, interface_parser) {
 	web.use(express.static('assets_web'));	// necessary to access and serve local files (css, img, js etc requred by the html page)
 
 	/**
-	 * Local web server
+	 * LOCAL WEB SERVER
 	 */
 
 	server_web.listen(3000, () => {
@@ -176,7 +168,7 @@ function runWeb(marlin_port, interface_parser) {
 
 
 	/**
-	 * Socket.io data communication between the web page and the local server
+	 * SOCKET.IO DATA COMMUNICATION BETWEEN WEB PAGE AND LOCAL SERVER
 	 */
 
 	// communication between the web page and the web server
@@ -190,7 +182,7 @@ function runWeb(marlin_port, interface_parser) {
 			// set incremental
 			console.log('G91');
 			marlin_port.write('G91\n');    // incremental advancement
-			// write on the Serial port of the Arduino
+			// write on the aerial port of the arduino
 			console.log(gcode);
 			marlin_port.write(gcode + '\n');   // gcode command
 		});
@@ -208,7 +200,7 @@ function runWeb(marlin_port, interface_parser) {
 	});
 
 	/**
-	 * Installation server
+	 * INSTALLATION SERVER
 	 */
 
 	installation.get('/', (req, res) => {
@@ -218,7 +210,7 @@ function runWeb(marlin_port, interface_parser) {
 	installation.use(express.static('assets_installation'));	// necessary to access and serve local files (css, img, js etc requred by the html page)
 
 	/**
-	 * Local web server
+	 * LOCAL WEB SERVER
 	 */
 
 	installation.listen(4000, () => {

@@ -2,17 +2,22 @@ const layersContainer = document.getElementById("layers_container");
 const canvas = document.getElementById("canvas");
 const message = document.getElementById("message");
 
-// scroll data
+
+/**
+ * ANIMATION AND PHYSICAL PARAMETERS, to adjust according to physical measures of the installation
+ */ 
+
+// scroll data and set physical dimensions
 let currentIndex = 0;
 const gapAngle = 0.3;  // gap between arches, in radians
 let screen_framerate = 60; // framerate of the screen, ADJUST according to the screen
 let circonferenza = 2070; // circumference in mm
 let plexi_gap = 1.396;  // 80 degrees of visible screen, in radians
-let z_gap_mm = (circonferenza / (Math.PI * 2)) * gapAngle; // gapAngle converted in mm for z-axis
+let z_gap_mm = (circonferenza / (Math.PI * 2)) * gapAngle; // gapAngle converted in mm for Z-axis
 let feedrate_gcode = 2000;  // mm per minute
 let circonferenza_duration = circonferenza / (feedrate_gcode / 60); // duration of one complete round in ms
-let correction_coefficient = 69 / 62;  // compensation between math and physical movement
-circonferenza_duration = circonferenza_duration * correction_coefficient;
+let correction_coefficient = 69 / 62;  // compensation between maths and physical movement
+circonferenza_duration = circonferenza_duration * correction_coefficient; // correct cirumference duration with compensation
 console.log("circonferenza_duration: " + circonferenza_duration);
 
 // datas for the printing of the line
@@ -20,14 +25,13 @@ let dataList = null;
 
 // font
 let font = new FontFace("Archivo", "url(Archivo-Regular.ttf) format('ttf'), url(Archivo-Regular.woff) format('woff')");
-
 font.load().then(() => {
     console.log("Font loaded!");
     document.fonts.add(font);   // required to load the font in the page!
     drawStop();
 });
 
-
+// update datas received from the arduino
 function updateDataList(data) {
     console.log('Interface: ' + data);
     dataList = data.split(',');
@@ -36,43 +40,45 @@ function updateDataList(data) {
     startLine();    // draw the lines
 }
 
+
+/**
+ * G-CODE CREATION FOR MOTORS
+ */ 
+
 function lineLoop() {
     
-    // If line IS finished
+    // if line IS finished
     if (currentIndex >= dataList.length) {
         stopLine();
     }
-    else { // If line IS NOT finished
+    else { // if line IS NOT finished
 
         console.log('currentIndex: ' + currentIndex + ', current value: ' + dataList[currentIndex]);
 
-        // Check if the parameter is different than 0 and has to be printed    
+        // check if the parameter IS different than 0 and has to be printed    
         if (dataList[currentIndex] != 0) {
 
-            // Compose the gcode command for X
+            // compose the g-code command for X
             let current_z = (dataList[currentIndex]/100 * circonferenza);
-            // console.log("current_z: " + current_z);
             
             let gcodeX = "G1 X" + String(((current_z - z_gap_mm)/2).toFixed(1)) + " Z" + String((current_z - z_gap_mm).toFixed(1)) + " F" + feedrate_gcode;
             console.log(gcodeX);
 
-            // Send the gcode to the server
-            sendGcode(gcodeX);
+            sendGcode(gcodeX); // send the g-code to the server
 
 
-            // Compose the gcode command for Y
+
+            // compose the g-code command for Y
             let gcodeY = "G1 Y20 Z" + z_gap_mm.toFixed(1) + " F" + feedrate_gcode;
             console.log(gcodeY);
 
-            // Send the gcode to the server
-            sendGcode(gcodeY);
+            sendGcode(gcodeY); // send the g-code to the server
 
-            // Increment the current data list index for Z
-            currentIndex++;
+            currentIndex++; // increment the current data list index for Z
 
             lineLoop();
 
-        // If parameter is 0 move to the next index
+        // if parameter IS 0 move to the next index
         } else {
             currentIndex++;
             lineLoop();
@@ -80,9 +86,14 @@ function lineLoop() {
     }
 }
 
+
+/**
+ * RANDOM Z MOVEMENT AT THE END OF THE CIRCLE, in order not to begin always in the same spot
+ */ 
+
 function stopLine() {
     
-    // Choose random new start if line is finished
+    // choose random new start if line IS finished
     console.log('> Stop Line! <');
     let current_z = (Math.floor((Math.random()) * circonferenza / 3)).toFixed(1);
     // console.log("line completed");
@@ -91,11 +102,9 @@ function stopLine() {
     let gcodeZ = "G1 Z" + String(current_z) + " F" + feedrate_gcode;
     console.log('Random Z advancement: ' + gcodeZ);
 
-    // Send the gcode to the server
-    sendGcode(gcodeZ); // CHECK IF IT WORKS OR REMOVE
+    sendGcode(gcodeZ); // send the g-code to the server
 
     console.log('\n\n');
-
     currentIndex = 0;
 }
 
@@ -106,56 +115,66 @@ function startLine() {
 }
 
 
+/**
+ * ANIMATION ON SCREEN
+ */ 
+
 function draw() {
 
+    // SETUP FOR ANIMATION
+
+    // set the position of the animation on screen, ADJUST according to plexi mask
     const canvas = document.getElementById('canvas');
     const width = canvas.width / 2;
-    const height = canvas.height / 2 - 1000; // set back to canvas.h.toFixed(3)eight / 2 - 1000
-    const radius = width + 285; // set back to width + 285
+    const height = canvas.height / 2 - 1000;
+    const radius = width + 285;
 
-    let animationInProgress = true; // Flag to track if animation is in progress
+    let animationInProgress = true; // flag to track if animation is in progress
 
     // animation angle increment
     let time_line_print = circonferenza_duration; // line print time in seconds
     let angle_increment = Math.PI*2 / (screen_framerate * time_line_print);
 
     const ctx = canvas.getContext('2d');
-    const line_width = 250; // set back to 250
 
+    // arches and text
+    const line_width = 250; // arches' line width
     ctx.lineCap = 'round';
+    const textSpacing = 60; // spacing between text along the arch
 
-    // Initial angle for animation
+    // initial angle for animation
     let angle = 0;
 
-    // Spacing between text along the arch
-    const textSpacing = 60; // Adjust this value to change the spacing between text
+    // MAIN FUNCTION FOR ANIMATION ON SCREEN
 
     function animate() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.clearRect(0, 0, canvas.width, canvas.height); // clear canvas from previous designs
 
-        // Draw all arches at the same time with animation and gap
-        let initial_start_angle = Math.PI / 4.5;
+
+        // ARCHES ANIMATION AND COLORING
+
+        // draw all arches at the same time with animation and gap
+        let initial_start_angle = Math.PI / 4.5; // ADJUST according to the plexi mask
         let startAngle = initial_start_angle;
 
         let gap_count = 0;
 
-        // consider only the values that are bigger than 0 as a gap
+        // consider only the values that are BIGGER than 0 as a gap
         for (let i=0; i < dataList.length; i++) {
             if (dataList[i] > 0) {
                 gap_count++
             }
         }
 
-        let total_segment_angle = Math.PI * 2 - gap_count * gapAngle; // this is the sum of the total circle - total of gaps according to potentiometers bigger than 0
+        // sum of the total circle - total gaps according to values BIGGER than 0
+        let total_segment_angle = Math.PI * 2 - gap_count * gapAngle; 
 
-    
+        // if index is BIGGER than 0 assign correct dimension, color and text
         for (let i = 0; i < dataList.length; i++) {
             if (dataList[i] > 0) {
                 const endAngle = startAngle - ((dataList[i] / 100) * total_segment_angle);
 
-                // console.log(endAngle);
-
-                // Color conditions
+                // color conditions
                 let color;
                 let textValue;
                 switch (i) {
@@ -179,12 +198,13 @@ function draw() {
                         color = 'rgb(186, 71, 147)'; // sustainable
                         textValue = 'sustainable';
                         break;
-                    // Add more cases for additional colors as needed
+                    // add more cases for additional colors as needed
                     default:
-                        color = 'black'; // Default color
+                        color = 'black'; // default color
                         textValue = 'default';
                 }
 
+                // arches 
                 ctx.strokeStyle = color;
                 ctx.lineWidth = line_width;
 
@@ -192,29 +212,35 @@ function draw() {
                 ctx.arc(width, height, radius, startAngle + angle, endAngle + angle, true);
                 ctx.stroke();
 
-                // Calculate the angle for text placement
+
+                // TEXT ASSIGNMENT AND POSITIONING
+
+                // calculate angle for text placement
                 const textAngle = startAngle + angle;
 
-                // Calculate the position for text placement
+                // calculate position for text placement
                 const textX = width + ((radius + 120) + textSpacing) * Math.cos(textAngle);
                 const textY = height + ((radius + 120) + textSpacing) * Math.sin(textAngle);
 
-                // Draw text along the arch
+                // draw text along the arch
                 ctx.save();
                 ctx.translate(textX, textY);
-                ctx.rotate(textAngle - (Math.PI/2)); // Rotate each text by 180 degrees
-                ctx.textAlign = 'center'; // Set text alignment to center
-                ctx.textBaseline = 'middle'; // Set text baseline to middle
+                ctx.rotate(textAngle - (Math.PI/2)); // rotate each text by 180 degrees
+                ctx.textAlign = 'center'; // set text alignment to center
+                ctx.textBaseline = 'middle'; // set text baseline to middle
                 ctx.fillStyle = 'white';
                 ctx.font = '60px "Archivo"';
                 ctx.fillText(textValue, 0, 0);
                 ctx.restore();
 
-                startAngle = endAngle - gapAngle;
+                startAngle = endAngle - gapAngle; // set new startAngle for next 
             }
         }
 
-        // Black mask over the last value, at start
+
+        // MASK AT THE START AND END OF THE ANIMATION, ADJUST according to plexi mask
+
+        // AT START, black mask over the last arch
         if(angle < Math.PI / 2) {
             
             ctx.lineWidth = line_width + 155;
@@ -224,40 +250,35 @@ function draw() {
             ctx.stroke();
         }
         
-        
-        // Update the animation angle
+        // update the animation angle
         angle += angle_increment;
 
-        // Black mask over the last value of old line during random Z motion, at the end
+        // AT THE END, black mask over the first value of the line during random Z motion
         if(angle > Math.PI * 2) {
             
-            ctx.lineWidth = line_width + 155;
+            ctx.lineWidth = line_width + 155; // ADJUST value according to line_width to avoid covering other arches
             ctx.beginPath();
             ctx.arc(width, height, radius, (Math.PI + initial_start_angle) + angle, initial_start_angle + angle);
-            //ctx.arc(width, height, radius, initial_start_angle + gapAngle + angle, -(Math.PI + angle), true);
             ctx.strokeStyle = 'rgb(0, 0, 0)';
             ctx.stroke();
-            
-            // Test to end with a black mask during random Z
-            //ctx.clearRect(0, 0, canvas.width, canvas.height);
-
         }
 
-
+        // request the next animation frame
         if (angle < Math.PI * 2 + plexi_gap) {
-            // Request the next animation frame
             requestAnimationFrame(animate);
-        } else {
-            // Animation is finished
+
+        } else { // animation IS finished
+
             animationInProgress = false;
             console.log('animation done!');
-            drawStop(); // Show the text when animation is finished
+            drawStop(); // show the text
         }
     }
 
-    // Start the animation loop
+    // start the animation loop
     animate();
-        // Hide the text when animation starts or resumes
+
+    // hide the idle message when animation starts or resumes
     if (animationInProgress) {
         const ctx = message.getContext('2d');
         ctx.clearRect(0, 0, message.width, message.height);
@@ -265,22 +286,25 @@ function draw() {
 }
 
 
+/**
+ * IDLE MESSAGE ON SCREEN WHEN FINISHED TO PRINT
+ */ 
+
 function drawStop() {
     const canvas = document.getElementById('canvas');
     const message = document.getElementById('message');
 
-    // Clear the canvas
+    // clear the canvas
     const ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     const ctxMessage = message.getContext('2d');
     ctxMessage.clearRect(0, 0, message.width, message.height);
 
-    // Draw text along the arch
+    // draw text along the arch
     ctx.textAlign = 'left';
     ctx.textBaseline = 'middle';
     ctx.fillStyle = 'white';
-    //ctx.fillRect(0, 0, message.width, message.height)
     ctx.font = '60px "Archivo"';
     ctx.fillText("Rate the last purchase you made.", message.width / 2-600, message.height / 2+150);
     ctx.fillText('Adjust values using the knobs to reflect', message.width / 2-600, message.height / 2 + 250);
